@@ -249,6 +249,46 @@
             position: relative;
         }
 
+        /* Drag and drop styles */
+        .timezone-card {
+            cursor: grab;
+            user-select: none;
+        }
+
+        .timezone-card:active {
+            cursor: grabbing;
+        }
+
+        .timezone-card.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+            z-index: 1000;
+        }
+
+        .timezone-card.drag-over {
+            border: 2px dashed #3b82f6;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%);
+        }
+
+        .drag-handle {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            cursor: grab;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .timezone-card:hover .drag-handle {
+            opacity: 1;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
         /* Add floating particles animation */
         @keyframes float {
             0%, 100% { transform: translateY(0px) rotate(0deg); }
@@ -298,6 +338,12 @@
         <div class="text-center mb-10">
             <h1 class="text-4xl font-bold bg-gradient-to-r from-orange-500 to-blue-500 bg-clip-text text-transparent mb-2">🌍 Time Zone Converter</h1>
             <p class="text-gray-600 text-lg">Sync your world, one timezone at a time ✨</p>
+            <div class="flex items-center justify-center space-x-2 mt-4">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span id="currentLocalTime" class="text-sm text-gray-600 font-medium"></span>
+            </div>
         </div>
 
         <!-- Add Time Zone Input with Dropdown -->
@@ -530,6 +576,11 @@
             const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
             card.innerHTML = `
+                <div class="drag-handle">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                    </svg>
+                </div>
                 <div class="timezone-info">
                     <p class="text-lg font-semibold text-gray-700 truncate">${timezone.name}</p>
                     <p class="text-sm font-medium text-orange-600">${timezone.abbreviation || 'GMT' + (timezone.offset >= 0 ? '+' : '') + timezone.offset}</p>
@@ -554,6 +605,9 @@
                     </svg>
                 </button>
             `;
+
+            // Make the card draggable
+            card.draggable = true;
 
             return card;
         }
@@ -584,10 +638,87 @@
             document.querySelectorAll('.timezone-card input[type="range"]').forEach(slider => {
                 slider.addEventListener('input', updateTimeFromSlider);
             });
-            
+
+            // Add drag and drop event listeners
+            addDragAndDropListeners();
+
             // Initial update of all displays and sliders
             updateTimeDisplays();
             updateSliderPositions();
+        }
+
+        // Function to add drag and drop event listeners
+        function addDragAndDropListeners() {
+            const cards = document.querySelectorAll('.timezone-card');
+
+            cards.forEach((card, index) => {
+                card.addEventListener('dragstart', handleDragStart);
+                card.addEventListener('dragover', handleDragOver);
+                card.addEventListener('drop', handleDrop);
+                card.addEventListener('dragend', handleDragEnd);
+                card.addEventListener('dragenter', handleDragEnter);
+                card.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        // Drag and drop event handlers
+        let draggedElement = null;
+        let draggedIndex = null;
+
+        function handleDragStart(e) {
+            draggedElement = this;
+            draggedIndex = parseInt(this.dataset.index);
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.outerHTML);
+        }
+
+        function handleDragOver(e) {
+            if (e.preventDefault) {
+                e.preventDefault();
+            }
+            e.dataTransfer.dropEffect = 'move';
+            return false;
+        }
+
+        function handleDragEnter(e) {
+            if (this !== draggedElement) {
+                this.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            if (e.stopPropagation) {
+                e.stopPropagation();
+            }
+
+            if (this !== draggedElement) {
+                const dropIndex = parseInt(this.dataset.index);
+
+                // Reorder the timezones array
+                const draggedTimezone = timezones[draggedIndex];
+                timezones.splice(draggedIndex, 1);
+                timezones.splice(dropIndex, 0, draggedTimezone);
+
+                // Re-render the timezones
+                renderTimezones();
+                updateURL(); // Update URL to reflect new order
+            }
+
+            return false;
+        }
+
+        function handleDragEnd(e) {
+            // Clean up
+            document.querySelectorAll('.timezone-card').forEach(card => {
+                card.classList.remove('dragging', 'drag-over');
+            });
+            draggedElement = null;
+            draggedIndex = null;
         }
 
         // Function to update the time and date displays
@@ -596,16 +727,35 @@
                 const index = card.dataset.index;
                 const timezone = timezones[index];
                 const now = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
-                
+
                 const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                 const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
                 const timeElement = card.querySelector('.time-display p.text-3xl');
                 const dateElement = card.querySelector('.time-display p.text-sm');
-                
+
                 if (timeElement) timeElement.textContent = timeString;
                 if (dateElement) dateElement.textContent = dateString;
             });
+        }
+
+        // Function to update the current local time display
+        function updateLocalTimeDisplay() {
+            const localTimeElement = document.getElementById('currentLocalTime');
+            if (localTimeElement) {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('en-US', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                const dateString = now.toLocaleDateString('en-US', {
+                    weekday: 'short',
+                    month: 'short',
+                    day: 'numeric'
+                });
+                localTimeElement.textContent = `Local Time: ${timeString} • ${dateString}`;
+            }
         }
 
         // Function to handle slider changes
@@ -768,8 +918,14 @@
             populateDatalist();
             renderTimezones();
 
-            // Start the continuous time update
-            setInterval(updateTimeDisplays, 1000);
+            // Initial local time display update
+            updateLocalTimeDisplay();
+
+            // Start the continuous time updates
+            setInterval(() => {
+                updateTimeDisplays();
+                updateLocalTimeDisplay();
+            }, 1000);
         }
 
         // Initialize the application
