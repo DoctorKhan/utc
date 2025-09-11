@@ -25,10 +25,14 @@
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS/JS for map support -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: 
+            background:
                 radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
                 radial-gradient(circle at 80% 20%, rgba(255, 119, 48, 0.3) 0%, transparent 50%),
                 radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%),
@@ -44,7 +48,7 @@
             appearance: none;
             width: 100%;
             height: 10px;
-            background: linear-gradient(90deg, 
+            background: linear-gradient(90deg,
                 #1e3a8a 0%,     /* Deep night blue */
                 #3b82f6 12.5%,  /* Dawn blue */
                 #fbbf24 25%,    /* Morning yellow */
@@ -60,7 +64,7 @@
             margin-top: 1rem;
             cursor: pointer;
             position: relative;
-            box-shadow: 
+            box-shadow:
                 0 4px 8px rgba(251, 146, 60, 0.2),
                 inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
@@ -70,7 +74,7 @@
             background: transparent;
             border-radius: 6px;
         }
-        
+
         input[type="range"]::-moz-range-track {
             background: transparent;
             border-radius: 6px;
@@ -83,7 +87,7 @@
             background: radial-gradient(circle, #ffffff 30%, #fbbf24 70%);
             border: 3px solid #f59e0b;
             border-radius: 50%;
-            box-shadow: 
+            box-shadow:
                 0 6px 20px rgba(251, 191, 36, 0.4),
                 0 2px 6px rgba(0, 0, 0, 0.2),
                 inset 0 1px 2px rgba(255, 255, 255, 0.8);
@@ -99,7 +103,7 @@
             background: radial-gradient(circle, #ffffff 30%, #fbbf24 70%);
             border: 3px solid #f59e0b;
             border-radius: 50%;
-            box-shadow: 
+            box-shadow:
                 0 6px 20px rgba(251, 191, 36, 0.4),
                 0 2px 6px rgba(0, 0, 0, 0.2),
                 inset 0 1px 2px rgba(255, 255, 255, 0.8);
@@ -112,7 +116,7 @@
         input[type="range"]:active::-webkit-slider-thumb {
             cursor: grabbing;
             transform: scale(1.2);
-            box-shadow: 
+            box-shadow:
                 0 8px 25px rgba(251, 191, 36, 0.6),
                 0 4px 12px rgba(0, 0, 0, 0.3),
                 inset 0 1px 2px rgba(255, 255, 255, 0.9);
@@ -121,7 +125,7 @@
         input[type="range"]:active::-moz-range-thumb {
             cursor: grabbing;
             transform: scale(1.2);
-            box-shadow: 
+            box-shadow:
                 0 8px 25px rgba(251, 191, 36, 0.6),
                 0 4px 12px rgba(0, 0, 0, 0.3),
                 inset 0 1px 2px rgba(255, 255, 255, 0.9);
@@ -129,7 +133,7 @@
 
         input[type="range"]:hover::-webkit-slider-thumb {
             transform: scale(1.1);
-            box-shadow: 
+            box-shadow:
                 0 8px 24px rgba(251, 191, 36, 0.5),
                 0 3px 8px rgba(0, 0, 0, 0.25),
                 inset 0 1px 2px rgba(255, 255, 255, 0.8);
@@ -137,12 +141,12 @@
 
         input[type="range"]:hover::-moz-range-thumb {
             transform: scale(1.1);
-            box-shadow: 
+            box-shadow:
                 0 8px 24px rgba(251, 191, 36, 0.5),
                 0 3px 8px rgba(0, 0, 0, 0.25),
                 inset 0 1px 2px rgba(255, 255, 255, 0.8);
         }
-        
+
         .time-labels {
             display: flex;
             justify-content: space-between;
@@ -162,12 +166,12 @@
         }
 
         .timezone-card {
-            background: 
+            background:
                 linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(254, 251, 247, 0.8) 100%);
             backdrop-filter: blur(10px);
             padding: 2rem;
             border-radius: 24px;
-            box-shadow: 
+            box-shadow:
                 0 10px 30px -10px rgba(251, 146, 60, 0.2),
                 0 6px 20px -6px rgba(59, 130, 246, 0.1),
                 inset 0 1px 0 rgba(255, 255, 255, 0.6);
@@ -178,9 +182,8 @@
             display: flex;
             align-items: center;
             overflow: hidden;
-        }
-
-        .timezone-card::before {
+            touch-action: none; /* Disable all touch actions on the card itself */
+        }        .timezone-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -193,7 +196,7 @@
         }
 
         .timezone-card:hover {
-            box-shadow: 
+            box-shadow:
                 0 20px 45px -10px rgba(251, 146, 60, 0.3),
                 0 12px 30px -6px rgba(59, 130, 246, 0.2),
                 inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -222,7 +225,7 @@
             transition: all 0.3s ease;
             opacity: 0.7;
         }
-        
+
         .close-button:hover {
             color: #ea580c;
             background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%);
@@ -247,46 +250,49 @@
             flex: 1;
             max-width: 300px;
             position: relative;
+            touch-action: auto; /* Allow touch actions on the slider */
         }
 
         /* Drag and drop styles */
-        .timezone-card {
-            cursor: grab;
-            user-select: none;
-        }
-
-        .timezone-card:active {
-            cursor: grabbing;
-        }
-
-        .timezone-card.dragging {
-            opacity: 0.5;
-            transform: rotate(5deg);
-            z-index: 1000;
-        }
-
-        .timezone-card.drag-over {
-            border: 2px dashed #3b82f6;
-            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%);
-        }
-
         .drag-handle {
             position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             color: #9ca3af;
             cursor: grab;
             opacity: 0;
-            transition: opacity 0.2s ease;
+            transition: opacity 0.2s ease, color 0.2s ease;
+            touch-action: none; /* Prevent scrolling when trying to drag */
         }
 
         .timezone-card:hover .drag-handle {
+            opacity: 0.6;
+        }
+
+        .drag-handle:hover {
+            color: #3b82f6;
             opacity: 1;
         }
 
         .drag-handle:active {
             cursor: grabbing;
+        }
+
+        .timezone-card.dragging {
+            opacity: 0.5;
+            transform: rotate(3deg) scale(1.05);
+            z-index: 1000;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+        }
+
+        .timezone-card.drag-over {
+            border: 2px dashed #3b82f6;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.1) 100%);
         }
 
         /* Add floating particles animation */
@@ -328,6 +334,13 @@
         .message-animate {
             animation: pulse 0.5s ease-in-out;
         }
+        /* Map modal styles */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 50; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; width: 90%; max-width: 800px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; }
+        #map { height: 420px; width: 100%; }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid #eee; }
+        .modal-actions { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; border-top: 1px solid #eee; justify-content: flex-end; }
     </style>
 </head>
 <body class="p-8 min-h-screen flex flex-col items-center">
@@ -360,6 +373,7 @@
                     <span>Add</span>
                 </span>
             </button>
+            <button id="openMapBtn" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95 relative z-10">Pick on Map</button>
         </div>
         <div id="messageContainer" class="text-center mb-4 transition-all duration-300 opacity-0 rounded-xl"></div>
 
@@ -368,6 +382,21 @@
             <!-- Time zones will be dynamically added here -->
         </div>
     </div>
+    <!-- Map Modal -->
+    <div id="mapModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="mapTitle" class="text-lg font-semibold">Pick a location on the map</h3>
+                <button id="closeMapBtn" class="text-gray-500 hover:text-gray-700">✕</button>
+            </div>
+            <div id="map"></div>
+            <div class="modal-actions">
+                <button id="useLocationBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Use Selected Location</button>
+                <button id="cancelMapBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
+            </div>
+        </div>
+    </div>
+
 
     <script>
         // Array of time zone objects to manage them
@@ -377,7 +406,7 @@
             { id: 'melbourne', name: 'South Melbourne, Australia', offset: 10, abbreviation: 'AEST' },
             { id: 'lisbon', name: 'Lisbon, Portugal', offset: 1, abbreviation: 'WEST' },
         ];
-        
+
         // Expanded and more flexible list of known timezones
         const knownTimezones = {
             // Americas - Pacific
@@ -701,8 +730,22 @@
                 </button>
             `;
 
-            // Make the card draggable
-            card.draggable = true;
+            // Make the drag handle draggable
+            const dragHandle = card.querySelector('.drag-handle');
+            if (dragHandle) {
+                dragHandle.addEventListener('mousedown', () => {
+                    card.draggable = true;
+                });
+                dragHandle.addEventListener('mouseup', () => {
+                    card.draggable = false;
+                });
+            }
+
+            card.addEventListener('dragstart', (e) => {
+                if (!card.draggable) {
+                    e.preventDefault();
+                }
+            });
 
             return card;
         }
@@ -858,10 +901,10 @@
             const sliderValue = parseFloat(event.target.value);
             const index = event.target.closest('.timezone-card').dataset.index;
             const timezone = timezones[index];
-            
+
             // Get the current date in the specified timezone to avoid date changes
             const nowInTimezone = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
-            
+
             // Set the new time based on the slider value
             nowInTimezone.setHours(Math.floor(sliderValue), (sliderValue % 1) * 60, 0, 0);
 
@@ -937,7 +980,7 @@
             showMessage(`Removed ${removedTz[0].name}.`, false);
             updateURL(); // Update URL when timezone is removed
         }
-        
+
         // Function to populate the datalist with known timezones
         function populateDatalist() {
             const seen = new Set();
@@ -968,6 +1011,138 @@
                 showMessage('Copy this link: ' + currentURL, false);
             }
         }
+        // Map integration: pick timezone by clicking on a map
+        let map, mapMarker, mapInitialized = false, selectedLatLng = null;
+        const mapModal = document.getElementById('mapModal');
+        const useLocationBtn = document.getElementById('useLocationBtn');
+        const cancelMapBtn = document.getElementById('cancelMapBtn');
+        const closeMapBtn = document.getElementById('closeMapBtn');
+
+        function openMapModal() {
+            mapModal.classList.add('active');
+            if (!mapInitialized) {
+                initMap();
+                mapInitialized = true;
+            }
+            // Make sure map sizes correctly after modal opens
+            setTimeout(() => map.invalidateSize(), 50);
+        }
+        function closeMapModal() {
+            mapModal.classList.remove('active');
+        }
+
+        function initMap() {
+            map = L.map('map');
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+            // Default center
+            map.setView([20, 0], 2);
+            // Try geolocation for convenience
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(pos => {
+                    map.setView([pos.coords.latitude, pos.coords.longitude], 5);
+                });
+            }
+            map.on('click', (e) => {
+                selectedLatLng = e.latlng;
+                if (!mapMarker) {
+                    mapMarker = L.marker(selectedLatLng).addTo(map);
+                } else {
+                    mapMarker.setLatLng(selectedLatLng);
+                }
+            });
+        }
+
+        async function fetchIanaTimezone(lat, lon) {
+            try {
+                const resp = await fetch(`https://timeapi.io/api/TimeZone/coordinate?latitude=${lat}&longitude=${lon}`);
+                if (!resp.ok) throw new Error('Failed to fetch timezone');
+                const data = await resp.json();
+                return data.timeZone || data.timezone || null;
+            } catch (e) {
+                console.warn('Timezone fetch error', e);
+                return null;
+            }
+        }
+
+        function getOffsetHoursForTimeZone(iana) {
+            const now = new Date();
+            // Prefer shortOffset if available
+            let parts;
+            try {
+                parts = new Intl.DateTimeFormat('en-US', { timeZone: iana, timeZoneName: 'shortOffset', hour: '2-digit', minute: '2-digit' }).formatToParts(now);
+            } catch {}
+            let tzPart = parts && parts.find(p => p.type === 'timeZoneName');
+            let match = tzPart && tzPart.value.match(/GMT([+-]\d{1,2})(?::(\d{2}))?/);
+            if (!match) {
+                try {
+                    parts = new Intl.DateTimeFormat('en-US', { timeZone: iana, timeZoneName: 'short', hour: '2-digit', minute: '2-digit' }).formatToParts(now);
+                    tzPart = parts.find(p => p.type === 'timeZoneName');
+                    match = tzPart && tzPart.value.match(/GMT([+-]\d{1,2})(?::(\d{2}))?/);
+                } catch {}
+            }
+            if (match) {
+                const sign = match[1].startsWith('-') ? -1 : 1;
+                const hours = Math.abs(parseInt(match[1], 10));
+                const mins = match[2] ? parseInt(match[2], 10) : 0;
+                return sign * (hours + mins / 60);
+            }
+            // Fallback
+            return 0;
+        }
+
+        function getAbbreviationForTimeZone(iana) {
+            try {
+                const parts = new Intl.DateTimeFormat('en-US', { timeZone: iana, timeZoneName: 'short', hour: '2-digit' }).formatToParts(new Date());
+                const tzPart = parts.find(p => p.type === 'timeZoneName');
+                const val = tzPart ? tzPart.value : '';
+                // Return alphabetic abbreviations like PST/CEST if present, else derived GMT offset
+                const m = val.match(/([A-Z]{2,5})/);
+                if (m) return m[1];
+                const m2 = val.match(/GMT([+-]\d{1,2})(?::(\d{2}))?/);
+                if (m2) return `GMT${m2[1]}${m2[2] ? ':' + m2[2] : ''}`;
+            } catch {}
+            return 'GMT';
+        }
+
+        async function addTimezoneFromCoordinates(lat, lon) {
+            const iana = await fetchIanaTimezone(lat, lon);
+            if (!iana) {
+                showMessage('Could not determine timezone for that location.', true);
+                return;
+            }
+            const offset = getOffsetHoursForTimeZone(iana);
+            const abbr = getAbbreviationForTimeZone(iana);
+            const id = iana.toLowerCase().replace(/\//g, '-');
+            const name = `Selected Location (${iana})`;
+            const newTz = { id, name, offset, abbreviation: abbr };
+
+            const isDuplicate = timezones.some(tz => Math.abs(tz.offset - newTz.offset) < 0.1);
+            if (isDuplicate) {
+                showMessage(`${name} is already covered by another timezone in your list.`, true);
+                return;
+            }
+            timezones.push(newTz);
+            renderTimezones();
+            updateURL();
+            showMessage(`Added ${name}!`, false);
+        }
+
+        // Wire up map controls
+        document.getElementById('openMapBtn').addEventListener('click', openMapModal);
+        useLocationBtn.addEventListener('click', async () => {
+            if (!selectedLatLng) {
+                showMessage('Click on the map to select a location.', true);
+                return;
+            }
+            await addTimezoneFromCoordinates(selectedLatLng.lat, selectedLatLng.lng);
+            closeMapModal();
+        });
+        cancelMapBtn.addEventListener('click', closeMapModal);
+        closeMapBtn.addEventListener('click', closeMapModal);
+
 
         // Event listeners
         addTimezoneBtn.addEventListener('click', addTimezoneFromInput);
