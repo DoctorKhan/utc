@@ -380,29 +380,124 @@
         
         // Expanded and more flexible list of known timezones
         const knownTimezones = {
-            'tokyo': { id: 'tokyo', name: 'Tokyo, Japan', offset: 9, abbreviation: 'JST' },
-            'london': { id: 'london', name: 'London, UK', offset: 1, abbreviation: 'BST' },
-            'new york': { id: 'new-york', name: 'New York, USA', offset: -4, abbreviation: 'EDT' },
-            'chicago': { id: 'chicago', name: 'Chicago, USA', offset: -5, abbreviation: 'CDT' },
-            'denver': { id: 'denver', name: 'Denver, USA', offset: -6, abbreviation: 'MDT' },
+            // Americas - Pacific
+            'seattle': { id: 'seattle', name: 'Seattle, USA', offset: -7, abbreviation: 'PDT' },
+            'portland': { id: 'portland', name: 'Portland, USA', offset: -7, abbreviation: 'PDT' },
+            'san francisco': { id: 'san-francisco', name: 'San Francisco, USA', offset: -7, abbreviation: 'PDT' },
+            'sf': { id: 'san-francisco', name: 'San Francisco, USA', offset: -7, abbreviation: 'PDT' },
+            'san jose': { id: 'san-jose', name: 'San Jose, USA', offset: -7, abbreviation: 'PDT' },
+            'san diego': { id: 'san-diego', name: 'San Diego, USA', offset: -7, abbreviation: 'PDT' },
             'los angeles': { id: 'los-angeles', name: 'Los Angeles, USA', offset: -7, abbreviation: 'PDT' },
-            'berlin': { id: 'berlin', name: 'Berlin, Germany', offset: 2, abbreviation: 'CEST' },
-            'dubai': { id: 'dubai', name: 'Dubai, UAE', offset: 4, abbreviation: 'GST' },
-            'mumbai': { id: 'mumbai', name: 'Mumbai, India', offset: 5.5, abbreviation: 'IST' },
-            'bali': { id: 'bali', name: 'Bali, Indonesia', offset: 8, abbreviation: 'WITA' },
-            'jakarta': { id: 'jakarta', name: 'Jakarta, Indonesia', offset: 7, abbreviation: 'WIB' },
-            'singapore': { id: 'singapore', name: 'Singapore', offset: 8, abbreviation: 'SGT' },
-            'hong kong': { id: 'hong-kong', name: 'Hong Kong', offset: 8, abbreviation: 'HKT' },
-            'sydney': { id: 'sydney', name: 'Sydney, Australia', offset: 10, abbreviation: 'AEST' },
-            'paris': { id: 'paris', name: 'Paris, France', offset: 2, abbreviation: 'CEST' },
-            'moscow': { id: 'moscow', name: 'Moscow, Russia', offset: 3, abbreviation: 'MSK' },
-            'cairo': { id: 'cairo', name: 'Cairo, Egypt', offset: 2, abbreviation: 'EET' },
-            'bangkok': { id: 'bangkok', name: 'Bangkok, Thailand', offset: 7, abbreviation: 'ICT' },
-            'seoul': { id: 'seoul', name: 'Seoul, South Korea', offset: 9, abbreviation: 'KST' },
-            'est': { id: 'est', name: 'Eastern Standard Time', offset: -5, abbreviation: 'EST' },
-            'pst': { id: 'pst', name: 'Pacific Standard Time', offset: -8, abbreviation: 'PST' },
-            'melbourne': { id: 'melbourne', name: 'South Melbourne, Australia', offset: 10, abbreviation: 'AEST' },
+            'vancouver': { id: 'vancouver', name: 'Vancouver, Canada', offset: -7, abbreviation: 'PDT' },
+            'phoenix': { id: 'phoenix', name: 'Phoenix, USA', offset: -7, abbreviation: 'MST' },
+            // Americas - Mountain
+            'denver': { id: 'denver', name: 'Denver, USA', offset: -6, abbreviation: 'MDT' },
+            'salt lake city': { id: 'salt-lake-city', name: 'Salt Lake City, USA', offset: -6, abbreviation: 'MDT' },
+            'calgary': { id: 'calgary', name: 'Calgary, Canada', offset: -6, abbreviation: 'MDT' },
+            // Americas - Central
+            'dallas': { id: 'dallas', name: 'Dallas, USA', offset: -5, abbreviation: 'CDT' },
+            'houston': { id: 'houston', name: 'Houston, USA', offset: -5, abbreviation: 'CDT' },
+            'austin': { id: 'austin', name: 'Austin, USA', offset: -5, abbreviation: 'CDT' },
+            'chicago': { id: 'chicago', name: 'Chicago, USA', offset: -5, abbreviation: 'CDT' },
+            'mexico city': { id: 'mexico-city', name: 'Mexico City, Mexico', offset: -6, abbreviation: 'CST' },
+            'winnipeg': { id: 'winnipeg', name: 'Winnipeg, Canada', offset: -5, abbreviation: 'CDT' },
+            // Americas - Eastern
+            'new york': { id: 'new-york', name: 'New York, USA', offset: -4, abbreviation: 'EDT' },
+            'toronto': { id: 'toronto', name: 'Toronto, Canada', offset: -4, abbreviation: 'EDT' },
+            'boston': { id: 'boston', name: 'Boston, USA', offset: -4, abbreviation: 'EDT' },
+            'miami': { id: 'miami', name: 'Miami, USA', offset: -4, abbreviation: 'EDT' },
+            'atlanta': { id: 'atlanta', name: 'Atlanta, USA', offset: -4, abbreviation: 'EDT' },
+            'washington dc': { id: 'washington-dc', name: 'Washington, DC, USA', offset: -4, abbreviation: 'EDT' },
+            'philadelphia': { id: 'philadelphia', name: 'Philadelphia, USA', offset: -4, abbreviation: 'EDT' },
+            'detroit': { id: 'detroit', name: 'Detroit, USA', offset: -4, abbreviation: 'EDT' },
+            // Americas - South
+            'sao paulo': { id: 'sao-paulo', name: 'Sao Paulo, Brazil', offset: -3, abbreviation: 'BRT' },
+            'buenos aires': { id: 'buenos-aires', name: 'Buenos Aires, Argentina', offset: -3, abbreviation: 'ART' },
+            'bogota': { id: 'bogota', name: 'Bogotá, Colombia', offset: -5, abbreviation: 'COT' },
+            'lima': { id: 'lima', name: 'Lima, Peru', offset: -5, abbreviation: 'PET' },
+            'santiago': { id: 'santiago', name: 'Santiago, Chile', offset: -4, abbreviation: 'CLT' },
+            'montevideo': { id: 'montevideo', name: 'Montevideo, Uruguay', offset: -3, abbreviation: 'UYT' },
+
+            // Europe Western/UK/Ireland
+            'london': { id: 'london', name: 'London, UK', offset: 1, abbreviation: 'BST' },
+            'dublin': { id: 'dublin', name: 'Dublin, Ireland', offset: 1, abbreviation: 'IST' },
             'lisbon': { id: 'lisbon', name: 'Lisbon, Portugal', offset: 1, abbreviation: 'WEST' },
+            'reykjavik': { id: 'reykjavik', name: 'Reykjavik, Iceland', offset: 0, abbreviation: 'GMT' },
+            'madrid': { id: 'madrid', name: 'Madrid, Spain', offset: 2, abbreviation: 'CEST' },
+            'barcelona': { id: 'barcelona', name: 'Barcelona, Spain', offset: 2, abbreviation: 'CEST' },
+
+            // Europe Central/Eastern
+            'paris': { id: 'paris', name: 'Paris, France', offset: 2, abbreviation: 'CEST' },
+            'berlin': { id: 'berlin', name: 'Berlin, Germany', offset: 2, abbreviation: 'CEST' },
+            'amsterdam': { id: 'amsterdam', name: 'Amsterdam, Netherlands', offset: 2, abbreviation: 'CEST' },
+            'zurich': { id: 'zurich', name: 'Zurich, Switzerland', offset: 2, abbreviation: 'CEST' },
+            'vienna': { id: 'vienna', name: 'Vienna, Austria', offset: 2, abbreviation: 'CEST' },
+            'rome': { id: 'rome', name: 'Rome, Italy', offset: 2, abbreviation: 'CEST' },
+            'prague': { id: 'prague', name: 'Prague, Czechia', offset: 2, abbreviation: 'CEST' },
+            'warsaw': { id: 'warsaw', name: 'Warsaw, Poland', offset: 2, abbreviation: 'CEST' },
+            'stockholm': { id: 'stockholm', name: 'Stockholm, Sweden', offset: 2, abbreviation: 'CEST' },
+            'oslo': { id: 'oslo', name: 'Oslo, Norway', offset: 2, abbreviation: 'CEST' },
+            'helsinki': { id: 'helsinki', name: 'Helsinki, Finland', offset: 3, abbreviation: 'EEST' },
+            'athens': { id: 'athens', name: 'Athens, Greece', offset: 3, abbreviation: 'EEST' },
+            'istanbul': { id: 'istanbul', name: 'Istanbul, Turkey', offset: 3, abbreviation: 'TRT' },
+            'kyiv': { id: 'kyiv', name: 'Kyiv, Ukraine', offset: 3, abbreviation: 'EEST' },
+            'moscow': { id: 'moscow', name: 'Moscow, Russia', offset: 3, abbreviation: 'MSK' },
+
+            // Africa & Middle East
+            'casablanca': { id: 'casablanca', name: 'Casablanca, Morocco', offset: 1, abbreviation: 'WEST' },
+            'lagos': { id: 'lagos', name: 'Lagos, Nigeria', offset: 1, abbreviation: 'WAT' },
+            'accra': { id: 'accra', name: 'Accra, Ghana', offset: 0, abbreviation: 'GMT' },
+            'cairo': { id: 'cairo', name: 'Cairo, Egypt', offset: 2, abbreviation: 'EET' },
+            'nairobi': { id: 'nairobi', name: 'Nairobi, Kenya', offset: 3, abbreviation: 'EAT' },
+            'addis ababa': { id: 'addis-ababa', name: 'Addis Ababa, Ethiopia', offset: 3, abbreviation: 'EAT' },
+            'johannesburg': { id: 'johannesburg', name: 'Johannesburg, South Africa', offset: 2, abbreviation: 'SAST' },
+            'dubai': { id: 'dubai', name: 'Dubai, UAE', offset: 4, abbreviation: 'GST' },
+            'doha': { id: 'doha', name: 'Doha, Qatar', offset: 3, abbreviation: 'AST' },
+            'riyadh': { id: 'riyadh', name: 'Riyadh, Saudi Arabia', offset: 3, abbreviation: 'AST' },
+            'jerusalem': { id: 'jerusalem', name: 'Jerusalem, Israel', offset: 3, abbreviation: 'IDT' },
+            'amman': { id: 'amman', name: 'Amman, Jordan', offset: 3, abbreviation: 'EEST' },
+            'tehran': { id: 'tehran', name: 'Tehran, Iran', offset: 3.5, abbreviation: 'IRST' },
+
+            // Asia South & SE Asia
+            'karachi': { id: 'karachi', name: 'Karachi, Pakistan', offset: 5, abbreviation: 'PKT' },
+            'mumbai': { id: 'mumbai', name: 'Mumbai, India', offset: 5.5, abbreviation: 'IST' },
+            'colombo': { id: 'colombo', name: 'Colombo, Sri Lanka', offset: 5.5, abbreviation: 'SLST' },
+            'kathmandu': { id: 'kathmandu', name: 'Kathmandu, Nepal', offset: 5.75, abbreviation: 'NPT' },
+            'dhaka': { id: 'dhaka', name: 'Dhaka, Bangladesh', offset: 6, abbreviation: 'BST' },
+            'yangon': { id: 'yangon', name: 'Yangon, Myanmar', offset: 6.5, abbreviation: 'MMT' },
+            'bangkok': { id: 'bangkok', name: 'Bangkok, Thailand', offset: 7, abbreviation: 'ICT' },
+            'jakarta': { id: 'jakarta', name: 'Jakarta, Indonesia', offset: 7, abbreviation: 'WIB' },
+            'bali': { id: 'bali', name: 'Bali, Indonesia', offset: 8, abbreviation: 'WITA' },
+            'kuala lumpur': { id: 'kuala-lumpur', name: 'Kuala Lumpur, Malaysia', offset: 8, abbreviation: 'MYT' },
+            'singapore': { id: 'singapore', name: 'Singapore', offset: 8, abbreviation: 'SGT' },
+            'manila': { id: 'manila', name: 'Manila, Philippines', offset: 8, abbreviation: 'PHT' },
+            'hong kong': { id: 'hong-kong', name: 'Hong Kong', offset: 8, abbreviation: 'HKT' },
+            'taipei': { id: 'taipei', name: 'Taipei, Taiwan', offset: 8, abbreviation: 'CST' },
+            'beijing': { id: 'beijing', name: 'Beijing, China', offset: 8, abbreviation: 'CST' },
+            'shanghai': { id: 'shanghai', name: 'Shanghai, China', offset: 8, abbreviation: 'CST' },
+            'seoul': { id: 'seoul', name: 'Seoul, South Korea', offset: 9, abbreviation: 'KST' },
+            'tokyo': { id: 'tokyo', name: 'Tokyo, Japan', offset: 9, abbreviation: 'JST' },
+
+            // Oceania
+            'perth': { id: 'perth', name: 'Perth, Australia', offset: 8, abbreviation: 'AWST' },
+            'adelaide': { id: 'adelaide', name: 'Adelaide, Australia', offset: 9.5, abbreviation: 'ACST' },
+            'brisbane': { id: 'brisbane', name: 'Brisbane, Australia', offset: 10, abbreviation: 'AEST' },
+            'sydney': { id: 'sydney', name: 'Sydney, Australia', offset: 10, abbreviation: 'AEST' },
+            'melbourne': { id: 'melbourne', name: 'Melbourne, Australia', offset: 10, abbreviation: 'AEST' },
+            'auckland': { id: 'auckland', name: 'Auckland, New Zealand', offset: 12, abbreviation: 'NZST' },
+            'wellington': { id: 'wellington', name: 'Wellington, New Zealand', offset: 12, abbreviation: 'NZST' },
+
+            // Generic zone shortcuts
+            'est': { id: 'est', name: 'Eastern Standard Time', offset: -5, abbreviation: 'EST' },
+            'edt': { id: 'edt', name: 'Eastern Daylight Time', offset: -4, abbreviation: 'EDT' },
+            'cst': { id: 'cst', name: 'Central Standard Time', offset: -6, abbreviation: 'CST' },
+            'cdt': { id: 'cdt', name: 'Central Daylight Time', offset: -5, abbreviation: 'CDT' },
+            'mst': { id: 'mst', name: 'Mountain Standard Time', offset: -7, abbreviation: 'MST' },
+            'mdt': { id: 'mdt', name: 'Mountain Daylight Time', offset: -6, abbreviation: 'MDT' },
+            'pst': { id: 'pst', name: 'Pacific Standard Time', offset: -8, abbreviation: 'PST' },
+            'pdt': { id: 'pdt', name: 'Pacific Daylight Time', offset: -7, abbreviation: 'PDT' },
+            'gmt': { id: 'gmt', name: 'Greenwich Mean Time', offset: 0, abbreviation: 'GMT' },
+            'utc': { id: 'utc', name: 'Coordinated Universal Time', offset: 0, abbreviation: 'UTC' }
         };
 
         // Get elements from the DOM
@@ -845,9 +940,14 @@
         
         // Function to populate the datalist with known timezones
         function populateDatalist() {
+            const seen = new Set();
+            timezoneOptions.innerHTML = '';
             for (const key in knownTimezones) {
+                const name = knownTimezones[key].name;
+                if (seen.has(name)) continue; // Avoid duplicate visible names
+                seen.add(name);
                 const option = document.createElement('option');
-                option.value = knownTimezones[key].name;
+                option.value = name;
                 timezoneOptions.appendChild(option);
             }
         }
