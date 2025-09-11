@@ -4,125 +4,318 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Universal Time Converter</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'warm-orange': {
+                            50: '#fef7f0',
+                            500: '#fb923c',
+                            600: '#f97316'
+                        }
+                    },
+                    animation: {
+                        'float': 'float 4s ease-in-out infinite',
+                        'pulse-gentle': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
+                    }
+                }
+            }
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 48, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 200, 255, 0.2) 0%, transparent 50%),
+                linear-gradient(135deg, #fefbf3 0%, #f0f9ff 50%, #fef7f0 100%);
+            color: #374151;
+            min-height: 100vh;
+            background-attachment: fixed;
         }
 
-        /* Custom slider styles to match the mockup */
+        /* Enhanced slider styles with gradient track */
         input[type="range"] {
             -webkit-appearance: none;
+            appearance: none;
             width: 100%;
-            height: 8px;
-            background: #e5e7eb; /* Base color of the slider track */
-            border-radius: 4px;
+            height: 10px;
+            background: linear-gradient(90deg, 
+                #1e3a8a 0%,     /* Deep night blue */
+                #3b82f6 12.5%,  /* Dawn blue */
+                #fbbf24 25%,    /* Morning yellow */
+                #f59e0b 37.5%,  /* Sunrise orange */
+                #ef4444 50%,    /* Noon red */
+                #f59e0b 62.5%,  /* Afternoon orange */
+                #fbbf24 75%,    /* Evening yellow */
+                #3b82f6 87.5%,  /* Dusk blue */
+                #1e3a8a 100%    /* Night blue */
+            );
+            border-radius: 8px;
             outline: none;
             margin-top: 1rem;
             cursor: pointer;
             position: relative;
+            box-shadow: 
+                0 4px 8px rgba(251, 146, 60, 0.2),
+                inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* Dynamically colored track behind the thumb */
         input[type="range"]::-webkit-slider-runnable-track {
             -webkit-appearance: none;
-            background: #e5e7eb;
-            border-radius: 4px;
+            background: transparent;
+            border-radius: 6px;
         }
         
         input[type="range"]::-moz-range-track {
-            background: #e5e7eb;
-            border-radius: 4px;
+            background: transparent;
+            border-radius: 6px;
         }
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 16px;
-            height: 16px;
-            background: #ffffff;
-            border: 2px solid #3b82f6;
+            width: 28px;
+            height: 28px;
+            background: radial-gradient(circle, #ffffff 30%, #fbbf24 70%);
+            border: 3px solid #f59e0b;
             border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
+            box-shadow: 
+                0 6px 20px rgba(251, 191, 36, 0.4),
+                0 2px 6px rgba(0, 0, 0, 0.2),
+                inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            cursor: grab;
             position: relative;
-            z-index: 2;
-            transform: translateY(-4px);
+            z-index: 3;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 16px;
-            height: 16px;
-            background: #ffffff;
-            border: 2px solid #3b82f6;
+            width: 28px;
+            height: 28px;
+            background: radial-gradient(circle, #ffffff 30%, #fbbf24 70%);
+            border: 3px solid #f59e0b;
             border-radius: 50%;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
+            box-shadow: 
+                0 6px 20px rgba(251, 191, 36, 0.4),
+                0 2px 6px rgba(0, 0, 0, 0.2),
+                inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            cursor: grab;
             position: relative;
-            z-index: 2;
-            transform: translateY(-4px);
+            z-index: 3;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="range"]:active::-webkit-slider-thumb {
+            cursor: grabbing;
+            transform: scale(1.2);
+            box-shadow: 
+                0 8px 25px rgba(251, 191, 36, 0.6),
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                inset 0 1px 2px rgba(255, 255, 255, 0.9);
+        }
+
+        input[type="range"]:active::-moz-range-thumb {
+            cursor: grabbing;
+            transform: scale(1.2);
+            box-shadow: 
+                0 8px 25px rgba(251, 191, 36, 0.6),
+                0 4px 12px rgba(0, 0, 0, 0.3),
+                inset 0 1px 2px rgba(255, 255, 255, 0.9);
+        }
+
+        input[type="range"]:hover::-webkit-slider-thumb {
+            transform: scale(1.1);
+            box-shadow: 
+                0 8px 24px rgba(251, 191, 36, 0.5),
+                0 3px 8px rgba(0, 0, 0, 0.25),
+                inset 0 1px 2px rgba(255, 255, 255, 0.8);
+        }
+
+        input[type="range"]:hover::-moz-range-thumb {
+            transform: scale(1.1);
+            box-shadow: 
+                0 8px 24px rgba(251, 191, 36, 0.5),
+                0 3px 8px rgba(0, 0, 0, 0.25),
+                inset 0 1px 2px rgba(255, 255, 255, 0.8);
         }
         
         .time-labels {
             display: flex;
             justify-content: space-between;
             width: 100%;
-            font-size: 0.75rem;
-            color: #6b7280;
-            margin-top: 0.5rem;
+            font-size: 1rem;
+            margin-top: 0.75rem;
+            font-weight: 600;
+        }
+
+        .time-labels span {
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .time-labels span:hover {
+            transform: scale(1.2);
         }
 
         .timezone-card {
-            background-color: #fff;
-            padding: 1.5rem;
-            border-radius: 16px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s ease;
-            cursor: pointer;
+            background: 
+                linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(254, 251, 247, 0.8) 100%);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 24px;
+            box-shadow: 
+                0 10px 30px -10px rgba(251, 146, 60, 0.2),
+                0 6px 20px -6px rgba(59, 130, 246, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(251, 146, 60, 0.15);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
+            min-height: 140px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .timezone-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #fb923c 0%, #3b82f6 50%, #fb923c 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .timezone-card:hover {
-            box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.15), 0 6px 10px -3px rgba(0, 0, 0, 0.08);
-            transform: translateY(-3px);
+            box-shadow: 
+                0 20px 45px -10px rgba(251, 146, 60, 0.3),
+                0 12px 30px -6px rgba(59, 130, 246, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            transform: translateY(-5px) scale(1.02);
+            border-color: rgba(251, 146, 60, 0.3);
+        }
+
+        .timezone-card:hover::before {
+            opacity: 1;
         }
 
         .close-button {
             position: absolute;
             top: 0.75rem;
             right: 0.75rem;
-            font-size: 1.5rem;
-            color: #9ca3af;
-            background: none;
-            border: none;
+            width: 32px;
+            height: 32px;
+            color: #fb923c;
+            background: linear-gradient(135deg, #fef7f0 0%, #fed7aa 100%);
+            border: 1px solid #fed7aa;
+            border-radius: 50%;
             cursor: pointer;
-            line-height: 1;
-            transition: color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            opacity: 0.7;
         }
         
         .close-button:hover {
-            color: #ef4444;
+            color: #ea580c;
+            background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%);
+            border-color: #fb923c;
+            opacity: 1;
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
+        }
+
+        .time-display {
+            font-variant-numeric: tabular-nums;
+            font-feature-settings: "tnum";
+            width: 120px;
+            text-align: right;
+        }
+
+        .timezone-info {
+            min-width: 200px;
+        }
+
+        .slider-container {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        /* Add floating particles animation */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            33% { transform: translateY(-10px) rotate(5deg); }
+            66% { transform: translateY(5px) rotate(-3deg); }
+        }
+
+        .timezone-card::after {
+            content: '⭐';
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            font-size: 0.75rem;
+            opacity: 0.6;
+            animation: float 4s ease-in-out infinite;
+            animation-delay: calc(var(--card-index, 0) * 0.5s);
+        }
+
+        /* Enhanced input focus effects */
+        #timezoneInput:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
+        }
+
+        /* Smooth scrolling for container */
+        #timezoneContainer {
+            scroll-behavior: smooth;
+        }
+
+        /* Add pulse animation for messages */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .message-animate {
+            animation: pulse 0.5s ease-in-out;
         }
     </style>
 </head>
-<body class="bg-gray-100 p-8 min-h-screen flex flex-col items-center">
+<body class="p-8 min-h-screen flex flex-col items-center">
 
     <!-- Main Container -->
     <div class="max-w-4xl w-full">
         <!-- Header -->
-        <div class="flex items-center justify-between mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Time Zone Converter</h1>
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-orange-500 to-blue-500 bg-clip-text text-transparent mb-2">🌍 Time Zone Converter</h1>
+            <p class="text-gray-600 text-lg">Sync your world, one timezone at a time ✨</p>
         </div>
 
         <!-- Add Time Zone Input with Dropdown -->
-        <div class="flex items-center space-x-2 mb-6 p-4 bg-white rounded-xl shadow-md">
-            <input type="text" id="timezoneInput" list="timezoneOptions" placeholder="Add Time Zone, City or Town..." class="flex-grow p-2 border-none rounded-md outline-none focus:ring-2 focus:ring-blue-500">
+        <div class="flex items-center space-x-4 mb-8 p-6 bg-gradient-to-r from-orange-50/80 to-blue-50/80 backdrop-blur-sm rounded-3xl shadow-xl border border-orange-200/50 relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-white/10"></div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" id="timezoneInput" list="timezoneOptions" placeholder="🏙️ Add a city like Tokyo, London, or New York..." class="flex-grow p-4 border-none rounded-xl outline-none focus:ring-0 text-gray-700 bg-white/80 backdrop-blur-sm shadow-lg focus:bg-white focus:shadow-xl transition-all duration-300 relative z-10">
             <datalist id="timezoneOptions"></datalist>
-            <button id="addTimezoneBtn" class="bg-blue-600 text-white p-2 rounded-full w-8 h-8 flex items-center justify-center font-bold text-xl hover:bg-blue-700 transition duration-300">+</button>
+            <button id="addTimezoneBtn" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95 relative z-10">
+                <span class="flex items-center space-x-2">
+                    <span>✚</span>
+                    <span>Add</span>
+                </span>
+            </button>
         </div>
-        <div id="messageContainer" class="text-center text-red-500 mb-4 transition-all duration-300 opacity-0"></div>
+        <div id="messageContainer" class="text-center mb-4 transition-all duration-300 opacity-0 rounded-xl"></div>
 
         <!-- Time Zone Cards Container -->
         <div id="timezoneContainer" class="space-y-4">
@@ -150,6 +343,16 @@
             'berlin': { id: 'berlin', name: 'Berlin, Germany', offset: 2, abbreviation: 'CEST' },
             'dubai': { id: 'dubai', name: 'Dubai, UAE', offset: 4, abbreviation: 'GST' },
             'mumbai': { id: 'mumbai', name: 'Mumbai, India', offset: 5.5, abbreviation: 'IST' },
+            'bali': { id: 'bali', name: 'Bali, Indonesia', offset: 8, abbreviation: 'WITA' },
+            'jakarta': { id: 'jakarta', name: 'Jakarta, Indonesia', offset: 7, abbreviation: 'WIB' },
+            'singapore': { id: 'singapore', name: 'Singapore', offset: 8, abbreviation: 'SGT' },
+            'hong kong': { id: 'hong-kong', name: 'Hong Kong', offset: 8, abbreviation: 'HKT' },
+            'sydney': { id: 'sydney', name: 'Sydney, Australia', offset: 10, abbreviation: 'AEST' },
+            'paris': { id: 'paris', name: 'Paris, France', offset: 2, abbreviation: 'CEST' },
+            'moscow': { id: 'moscow', name: 'Moscow, Russia', offset: 3, abbreviation: 'MSK' },
+            'cairo': { id: 'cairo', name: 'Cairo, Egypt', offset: 2, abbreviation: 'EET' },
+            'bangkok': { id: 'bangkok', name: 'Bangkok, Thailand', offset: 7, abbreviation: 'ICT' },
+            'seoul': { id: 'seoul', name: 'Seoul, South Korea', offset: 9, abbreviation: 'KST' },
             'est': { id: 'est', name: 'Eastern Standard Time', offset: -5, abbreviation: 'EST' },
             'pst': { id: 'pst', name: 'Pacific Standard Time', offset: -8, abbreviation: 'PST' },
             'melbourne': { id: 'melbourne', name: 'South Melbourne, Australia', offset: 10, abbreviation: 'AEST' },
@@ -166,10 +369,160 @@
         // Initial time object, can be manipulated by the sliders
         let currentTime = new Date();
 
+        // Function to detect user's timezone and add it to the list
+        function detectAndAddUserTimezone() {
+            try {
+                // Get user's timezone using Intl API
+                const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const now = new Date();
+
+                // Calculate offset in hours
+                const offsetMinutes = now.getTimezoneOffset();
+                const offsetHours = -offsetMinutes / 60; // Negative because getTimezoneOffset returns opposite sign
+
+                // Create a timezone object for user's location
+                const userTz = {
+                    id: 'user-location',
+                    name: `Your Location (${userTimezone})`,
+                    offset: offsetHours,
+                    abbreviation: 'LOCAL'
+                };
+
+                // Check if user's timezone is already in the list
+                const isDuplicate = timezones.some(tz =>
+                    tz.id === 'user-location' ||
+                    Math.abs(tz.offset - offsetHours) < 0.1 // Same offset within 6 minutes
+                );
+
+                if (!isDuplicate) {
+                    // Add user's timezone at the beginning of the list
+                    timezones.unshift(userTz);
+                    return true;
+                }
+            } catch (error) {
+                console.warn('Could not detect user timezone:', error);
+            }
+            return false;
+        }
+
+        // Function to get timezone suggestions based on user's location
+        function getLocationBasedSuggestions() {
+            try {
+                const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                const suggestions = [];
+
+                // Map common timezone identifiers to our known timezones
+                const timezoneMapping = {
+                    'Asia/Tokyo': 'tokyo',
+                    'Europe/London': 'london',
+                    'America/New_York': 'new york',
+                    'America/Chicago': 'chicago',
+                    'America/Denver': 'denver',
+                    'America/Los_Angeles': 'los angeles',
+                    'Europe/Berlin': 'berlin',
+                    'Asia/Dubai': 'dubai',
+                    'Asia/Kolkata': 'mumbai',
+                    'Asia/Makassar': 'bali',
+                    'Asia/Jakarta': 'jakarta',
+                    'Asia/Singapore': 'singapore',
+                    'Asia/Hong_Kong': 'hong kong',
+                    'Australia/Sydney': 'sydney',
+                    'Europe/Paris': 'paris',
+                    'Europe/Moscow': 'moscow',
+                    'Africa/Cairo': 'cairo',
+                    'Asia/Bangkok': 'bangkok',
+                    'Asia/Seoul': 'seoul',
+                    'Australia/Melbourne': 'melbourne',
+                    'Europe/Lisbon': 'lisbon'
+                };
+
+                // Add related timezones based on user's location
+                if (userTimezone.includes('Asia')) {
+                    suggestions.push('tokyo', 'singapore', 'bali', 'mumbai', 'dubai');
+                } else if (userTimezone.includes('Europe')) {
+                    suggestions.push('london', 'berlin', 'paris', 'moscow');
+                } else if (userTimezone.includes('America')) {
+                    suggestions.push('new york', 'los angeles', 'chicago');
+                } else if (userTimezone.includes('Australia')) {
+                    suggestions.push('sydney', 'melbourne', 'tokyo');
+                }
+
+                return suggestions;
+            } catch (error) {
+                console.warn('Could not get location-based suggestions:', error);
+                return [];
+            }
+        }
+
+        // Function to parse URL parameters
+        function parseURLParameters() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const result = {
+                timezones: [],
+                time: null
+            };
+
+            // Parse timezone parameter (supports both 'tz' and 'timezones')
+            const tzParam = urlParams.get('tz') || urlParams.get('timezones');
+            if (tzParam) {
+                const tzList = tzParam.split(',').map(tz => tz.trim().toLowerCase());
+                tzList.forEach(tzName => {
+                    // Find matching timezone from knownTimezones
+                    for (const key in knownTimezones) {
+                        if (key === tzName || knownTimezones[key].id === tzName ||
+                            knownTimezones[key].abbreviation.toLowerCase() === tzName) {
+                            result.timezones.push(knownTimezones[key]);
+                            break;
+                        }
+                    }
+                });
+            }
+
+            // Parse time parameter
+            const timeParam = urlParams.get('time');
+            if (timeParam) {
+                // Support formats like "14:30", "2:30pm", or ISO datetime
+                try {
+                    if (timeParam.includes('T') || timeParam.includes('-')) {
+                        // ISO format or date string
+                        result.time = new Date(timeParam);
+                    } else if (timeParam.includes(':')) {
+                        // Time format like "14:30" or "2:30pm"
+                        const today = new Date();
+                        const [timePart, period] = timeParam.toLowerCase().split(/([ap]m)/);
+                        let [hours, minutes] = timePart.split(':').map(Number);
+
+                        if (period === 'pm' && hours !== 12) hours += 12;
+                        if (period === 'am' && hours === 12) hours = 0;
+
+                        today.setHours(hours, minutes || 0, 0, 0);
+                        result.time = today;
+                    }
+                } catch (e) {
+                    console.warn('Invalid time parameter:', timeParam);
+                }
+            }
+
+            return result;
+        }
+
+        // Function to update URL with current state (optional feature)
+        function updateURL() {
+            const params = new URLSearchParams();
+
+            if (timezones.length > 0) {
+                const tzIds = timezones.map(tz => tz.id).join(',');
+                params.set('tz', tzIds);
+            }
+
+            const newURL = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+            window.history.replaceState({}, '', newURL);
+        }
+
         // Function to create a new time zone card element
         function createTimezoneCard(timezone, index) {
             const card = document.createElement('div');
-            card.className = `timezone-card flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0 sm:space-x-4 mb-4`;
+            card.className = `timezone-card flex items-center justify-between space-x-6 mb-4`;
             card.dataset.index = index;
 
             const now = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
@@ -177,30 +530,26 @@
             const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
             card.innerHTML = `
-                <div class="flex-1 w-full sm:w-auto">
-                    <p class="text-lg font-semibold text-gray-800">${timezone.name}</p>
-                    <p class="text-sm text-gray-500">${timezone.abbreviation || 'GMT' + timezone.offset}</p>
+                <div class="timezone-info">
+                    <p class="text-lg font-semibold text-gray-700 truncate">${timezone.name}</p>
+                    <p class="text-sm font-medium text-orange-600">${timezone.abbreviation || 'GMT' + (timezone.offset >= 0 ? '+' : '') + timezone.offset}</p>
                 </div>
-                <div class="flex-1 text-right w-full sm:w-auto">
-                    <p class="text-4xl font-light text-gray-900 mb-1">${timeString}</p>
-                    <p class="text-md text-gray-500">${dateString}</p>
+                <div class="time-display">
+                    <p class="text-3xl font-medium bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent mb-0 leading-tight">${timeString}</p>
+                    <p class="text-sm text-gray-500 font-medium">${dateString}</p>
                 </div>
-                <div class="w-full sm:w-3/5">
-                    <input type="range" class="w-full" min="0" max="24" step="0.5">
+                <div class="slider-container">
+                    <input type="range" class="w-full" min="0" max="24" step="0.25" value="12">
                     <div class="time-labels">
-                        <span>12am</span>
-                        <span>3am</span>
-                        <span>6am</span>
-                        <span>9am</span>
-                        <span>12pm</span>
-                        <span>3pm</span>
-                        <span>6pm</span>
-                        <span>9pm</span>
-                        <span>12am</span>
+                        <span>🌙</span>
+                        <span>🌅</span>
+                        <span>☀️</span>
+                        <span>🌇</span>
+                        <span>🌙</span>
                     </div>
                 </div>
                 <button class="close-button" onclick="removeTimezone(${index})">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -251,8 +600,11 @@
                 const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                 const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 
-                card.querySelector('p.text-4xl').textContent = timeString;
-                card.querySelector('p.text-md').textContent = dateString;
+                const timeElement = card.querySelector('.time-display p.text-3xl');
+                const dateElement = card.querySelector('.time-display p.text-sm');
+                
+                if (timeElement) timeElement.textContent = timeString;
+                if (dateElement) dateElement.textContent = dateString;
             });
         }
 
@@ -279,7 +631,7 @@
         // Function to display a temporary message
         function showMessage(text, isError = false) {
             messageContainer.textContent = text;
-            messageContainer.className = `text-center mb-4 transition-all duration-300 opacity-100 ${isError ? 'text-red-500' : 'text-green-600'}`;
+            messageContainer.className = `text-center mb-4 transition-all duration-300 opacity-100 px-4 py-2 rounded-xl font-medium ${isError ? 'text-red-600 bg-red-50 border border-red-200' : 'text-emerald-700 bg-emerald-50 border border-emerald-200'}`;
             setTimeout(() => {
                 messageContainer.className = `text-center mb-4 transition-all duration-300 opacity-0`;
             }, 3000);
@@ -289,26 +641,40 @@
         function addTimezoneFromInput() {
             const inputName = timezoneInput.value.trim().toLowerCase();
             if (inputName === '') return;
-            
+
             let newTz = null;
             // Find a matching time zone from the expanded list
             for (const key in knownTimezones) {
-                if (key.includes(inputName) || knownTimezones[key].abbreviation.toLowerCase().includes(inputName)) {
-                    newTz = knownTimezones[key];
+                const timezone = knownTimezones[key];
+                const keyLower = key.toLowerCase();
+                const nameLower = timezone.name.toLowerCase();
+                const abbreviationLower = timezone.abbreviation.toLowerCase();
+
+                // Check multiple matching criteria:
+                // 1. Key contains input or input contains key
+                // 2. Timezone name contains input or input contains key parts
+                // 3. Abbreviation matches
+                if (keyLower.includes(inputName) ||
+                    inputName.includes(keyLower) ||
+                    nameLower.includes(inputName) ||
+                    inputName.includes(keyLower.split(' ')[0]) || // Match first word of key
+                    abbreviationLower.includes(inputName)) {
+                    newTz = timezone;
                     break;
                 }
             }
 
             if (newTz) {
-                // Check if the timezone is already in the list
-                const isDuplicate = timezones.some(tz => tz.id === newTz.id);
+                // Check if a timezone with the same offset is already in the list
+                const isDuplicate = timezones.some(tz => Math.abs(tz.offset - newTz.offset) < 0.1);
                 if (!isDuplicate) {
                     timezones.push(newTz);
                     renderTimezones();
                     timezoneInput.value = '';
                     showMessage(`Added ${newTz.name}!`, false);
+                    updateURL(); // Update URL when timezone is added
                 } else {
-                    showMessage(`${newTz.name} is already in the list.`, true);
+                    showMessage(`${newTz.name} is already covered by another timezone in your list.`, true);
                 }
             } else {
                 showMessage('Time zone not recognized. Please try a different city.', true);
@@ -324,6 +690,7 @@
             const removedTz = timezones.splice(index, 1);
             renderTimezones();
             showMessage(`Removed ${removedTz[0].name}.`, false);
+            updateURL(); // Update URL when timezone is removed
         }
         
         // Function to populate the datalist with known timezones
@@ -335,6 +702,23 @@
             }
         }
 
+        // Function to copy current URL to clipboard (share functionality)
+        function shareCurrentState() {
+            updateURL(); // Ensure URL is up to date
+            const currentURL = window.location.href;
+
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(currentURL).then(() => {
+                    showMessage('Link copied to clipboard!', false);
+                }).catch(() => {
+                    showMessage('Failed to copy link. Please copy manually from address bar.', true);
+                });
+            } else {
+                // Fallback for older browsers
+                showMessage('Copy this link: ' + currentURL, false);
+            }
+        }
+
         // Event listeners
         addTimezoneBtn.addEventListener('click', addTimezoneFromInput);
         timezoneInput.addEventListener('keydown', (event) => {
@@ -343,10 +727,53 @@
             }
         });
 
-        // Initial render and continuous time update
-        populateDatalist();
-        renderTimezones();
-        setInterval(updateTimeDisplays, 1000);
+        // Share button event listener (removed share button from UI)
+        // document.getElementById('shareBtn').addEventListener('click', shareCurrentState);
+
+        // Initialize the application
+        function initializeApp() {
+            // Parse URL parameters first
+            const urlParams = parseURLParameters();
+
+            // If URL has timezones, use those instead of defaults
+            if (urlParams.timezones.length > 0) {
+                timezones.length = 0; // Clear default timezones
+                timezones.push(...urlParams.timezones);
+            } else {
+                // No URL parameters, so try to detect user's timezone and add it
+                const userTimezoneAdded = detectAndAddUserTimezone();
+                if (userTimezoneAdded) {
+                    showMessage('Added your local timezone!', false);
+                }
+
+                // Add some location-based suggestions to the default list
+                const suggestions = getLocationBasedSuggestions();
+                suggestions.forEach(suggestion => {
+                    if (knownTimezones[suggestion]) {
+                        const tz = knownTimezones[suggestion];
+                        const isDuplicate = timezones.some(existing => existing.id === tz.id);
+                        if (!isDuplicate && timezones.length < 6) { // Limit to 6 total timezones
+                            timezones.push(tz);
+                        }
+                    }
+                });
+            }
+
+            // If URL has a specific time, set it
+            if (urlParams.time && !isNaN(urlParams.time.getTime())) {
+                currentTime = urlParams.time;
+            }
+
+            // Populate datalist and render
+            populateDatalist();
+            renderTimezones();
+
+            // Start the continuous time update
+            setInterval(updateTimeDisplays, 1000);
+        }
+
+        // Initialize the application
+        initializeApp();
     </script>
 </body>
 </html>
