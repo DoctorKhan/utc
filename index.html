@@ -450,7 +450,7 @@
             // Europe Western/UK/Ireland
             'london': { id: 'london', name: 'London, UK', offset: 1, abbreviation: 'BST' },
             'dublin': { id: 'dublin', name: 'Dublin, Ireland', offset: 1, abbreviation: 'IST' },
-            'lisbon': { id: 'lisbon', name: 'Lisbon, Portugal', offset: 1, abbreviation: 'WEST' },
+            'lisbon': { id: 'lisbon', name: 'Lisbon, Portugal', offset: 1, abbreviation: 'WEST', iana: 'Europe/Lisbon' },
             'reykjavik': { id: 'reykjavik', name: 'Reykjavik, Iceland', offset: 0, abbreviation: 'GMT' },
             'madrid': { id: 'madrid', name: 'Madrid, Spain', offset: 2, abbreviation: 'CEST' },
             'barcelona': { id: 'barcelona', name: 'Barcelona, Spain', offset: 2, abbreviation: 'CEST' },
@@ -550,12 +550,17 @@
                 const offsetMinutes = now.getTimezoneOffset();
                 const offsetHours = -offsetMinutes / 60; // Negative because getTimezoneOffset returns opposite sign
 
+                // Get timezone abbreviation
+                const dtf = new Intl.DateTimeFormat('en-US', { timeZone: userTimezone, timeZoneName: 'short' });
+                const parts = dtf.formatToParts(now);
+                const abbreviation = parts.find(part => part.type === 'timeZoneName')?.value || 'LOCAL';
+
                 // Create a timezone object for user's location
                 const userTz = {
                     id: 'user-location',
-                    name: `Your Location (${userTimezone})`,
+                    name: `Your Location (${userTimezone.replace(/_/g, ' ')})`,
                     offset: offsetHours,
-                    abbreviation: 'LOCAL'
+                    abbreviation: abbreviation
                 };
 
                 // Check if user's timezone is already in the list
@@ -695,9 +700,19 @@
             card.className = `timezone-card flex items-center justify-between space-x-6 mb-4`;
             card.dataset.index = index;
 
-            const now = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
-            const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-            const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            // Compute display strings with DST-aware IANA timezone if available
+            let timeString, dateString;
+            if (timezone.iana) {
+                timeString = new Intl.DateTimeFormat('en-US', { timeZone: timezone.iana, hour: '2-digit', minute: '2-digit' }).format(currentTime);
+                dateString = new Intl.DateTimeFormat('en-US', { timeZone: timezone.iana, weekday: 'short', month: 'short', day: 'numeric' }).format(currentTime);
+            } else {
+                const now = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
+                timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+            }
+
+            const abbrDisplay = timezone.iana ? getAbbreviationForTimeZone(timezone.iana) : (timezone.abbreviation || ('GMT' + (timezone.offset >= 0 ? '+' : '') + timezone.offset));
+
 
             card.innerHTML = `
                 <div class="drag-handle">
@@ -707,7 +722,7 @@
                 </div>
                 <div class="timezone-info">
                     <p class="text-lg font-semibold text-gray-700 truncate">${timezone.name}</p>
-                    <p class="text-sm font-medium text-orange-600">${timezone.abbreviation || 'GMT' + (timezone.offset >= 0 ? '+' : '') + timezone.offset}</p>
+                    <p class="text-sm font-medium text-orange-600">${abbrDisplay}</p>
                 </div>
                 <div class="time-display">
                     <p class="text-3xl font-medium bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent mb-0 leading-tight">${timeString}</p>
@@ -755,7 +770,10 @@
             document.querySelectorAll('.timezone-card input[type="range"]').forEach(slider => {
                 const index = slider.closest('.timezone-card').dataset.index;
                 const timezone = timezones[index];
-                const now = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
+
+                // Compute local time in this timezone for the current UTC time
+                const offsetHours = getOffsetHoursForTimezone(currentTime, timezone);
+                const now = new Date(currentTime.getTime() + offsetHours * 60 * 60 * 1000);
 
                 const hours = now.getHours();
                 const minutes = now.getMinutes();
@@ -864,10 +882,16 @@
             document.querySelectorAll('.timezone-card').forEach(card => {
                 const index = card.dataset.index;
                 const timezone = timezones[index];
-                const now = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
 
-                const timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                const dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                let timeString, dateString;
+                if (timezone.iana) {
+                    timeString = new Intl.DateTimeFormat('en-US', { timeZone: timezone.iana, hour: '2-digit', minute: '2-digit' }).format(currentTime);
+                    dateString = new Intl.DateTimeFormat('en-US', { timeZone: timezone.iana, weekday: 'short', month: 'short', day: 'numeric' }).format(currentTime);
+                } else {
+                    const now = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
+                    timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                }
 
                 const timeElement = card.querySelector('.time-display p.text-3xl');
                 const dateElement = card.querySelector('.time-display p.text-sm');
@@ -902,16 +926,22 @@
             const index = event.target.closest('.timezone-card').dataset.index;
             const timezone = timezones[index];
 
-            // Get the current date in the specified timezone to avoid date changes
-            const nowInTimezone = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
+            const selHour = Math.floor(sliderValue);
+            const selMinute = Math.round((sliderValue % 1) * 60);
 
-            // Set the new time based on the slider value
-            nowInTimezone.setHours(Math.floor(sliderValue), (sliderValue % 1) * 60, 0, 0);
+            if (timezone.iana) {
+                // Take the current date in that timezone
+                const fmt = new Intl.DateTimeFormat('en-CA', { timeZone: timezone.iana, year: 'numeric', month: '2-digit', day: '2-digit' });
+                const [y, m, d] = fmt.format(currentTime).split('-').map(n => parseInt(n, 10));
+                const utcDate = utcFromZoned(timezone.iana, y, m, d, selHour, selMinute);
+                currentTime = utcDate;
+            } else {
+                // Fallback using fixed offset
+                const nowInTimezone = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
+                nowInTimezone.setHours(selHour, selMinute, 0, 0);
+                currentTime = new Date(nowInTimezone.getTime() - timezone.offset * 60 * 60 * 1000);
+            }
 
-            // Update the central universal time by subtracting the timezone's offset
-            currentTime = new Date(nowInTimezone.getTime() - timezone.offset * 60 * 60 * 1000);
-
-            // Update the time text and slider positions for all cards
             updateTimeDisplays();
             updateSliderPositions();
         }
@@ -1105,6 +1135,73 @@
                 if (m2) return `GMT${m2[1]}${m2[2] ? ':' + m2[2] : ''}`;
             } catch {}
             return 'GMT';
+        }
+
+        // --- DST-aware helpers using IANA timezones ---
+        function getOffsetHoursForIanaAt(date, iana) {
+            try {
+                const parts = new Intl.DateTimeFormat('en-US', {
+                    timeZone: iana,
+                    timeZoneName: 'shortOffset',
+                    hour: '2-digit'
+                }).formatToParts(date);
+                const tz = parts.find(p => p.type === 'timeZoneName');
+                const m = tz && tz.value.match(/GMT([+-]\d{1,2})(?::(\d{2}))?/);
+                if (m) {
+                    const sign = m[1].startsWith('-') ? -1 : 1;
+                    const h = Math.abs(parseInt(m[1], 10));
+                    const mm = m[2] ? parseInt(m[2], 10) : 0;
+                    return sign * (h + mm / 60);
+                }
+            } catch {}
+            return 0;
+        }
+
+        function getOffsetHoursForTimezone(date, timezone) {
+            if (timezone.iana) return getOffsetHoursForIanaAt(date, timezone.iana);
+            return timezone.offset;
+        }
+
+        function getZonedParts(date, iana) {
+            const parts = new Intl.DateTimeFormat('en-CA', {
+                timeZone: iana,
+                year: 'numeric', month: '2-digit', day: '2-digit',
+                hour: '2-digit', minute: '2-digit', second: '2-digit'
+            }).formatToParts(date);
+            const byType = Object.fromEntries(parts.map(p => [p.type, p.value]));
+            return {
+                y: parseInt(byType.year, 10),
+                m: parseInt(byType.month, 10),
+                d: parseInt(byType.day, 10),
+                h: parseInt(byType.hour, 10),
+                min: parseInt(byType.minute, 10)
+            };
+        }
+
+        function utcFromZoned(iana, y, m, d, h, min) {
+            const baseUTC = Date.UTC(y, m - 1, d, h, min, 0, 0);
+            let offset = getOffsetHoursForIanaAt(new Date(baseUTC), iana);
+            let candidate = new Date(baseUTC - offset * 3600000);
+
+            const matches = (dt) => {
+                const p = getZonedParts(dt, iana);
+                return p.y === y && p.m === m && p.d === d && p.h === h && p.min === min;
+            };
+            if (matches(candidate)) return candidate;
+
+            // Recompute with offset at candidate (handles transitions)
+            offset = getOffsetHoursForIanaAt(candidate, iana);
+            candidate = new Date(baseUTC - offset * 3600000);
+            if (matches(candidate)) return candidate;
+
+            // Try nearby minutes to navigate DST gaps/overlaps
+            const adjustments = [60, -60, 120, -120, 180, -180];
+            for (const adj of adjustments) {
+                const dt = new Date(candidate.getTime() + adj * 60000);
+                if (matches(dt)) return dt;
+            }
+            // Fallback: return best-effort candidate
+            return candidate;
         }
 
         async function addTimezoneFromCoordinates(lat, lon) {
