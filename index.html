@@ -235,21 +235,21 @@
             .timezone-card {
                 padding: 1.25rem;
             }
-            
+
             .card-header {
                 display: flex;
                 justify-content: space-between;
                 align-items: flex-start;
                 width: 100%;
             }
-            
+
             .card-content {
                 display: flex;
                 flex-direction: column;
                 gap: 1rem;
                 width: 100%;
             }
-            
+
             .time-section {
                 display: flex;
                 justify-content: space-between;
@@ -387,7 +387,7 @@
             .drag-handle {
                 display: flex;
             }
-            
+
             .timezone-card:hover .drag-handle {
                 opacity: 0.6;
             }
@@ -489,36 +489,36 @@
         }
 
         /* Map modal styles - mobile responsive */
-        .modal-overlay { 
-            position: fixed; 
-            inset: 0; 
-            background: rgba(0,0,0,0.4); 
-            display: none; 
-            align-items: center; 
-            justify-content: center; 
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            display: none;
+            align-items: center;
+            justify-content: center;
             z-index: 50;
             padding: 1rem;
         }
-        
-        .modal-overlay.active { 
-            display: flex; 
+
+        .modal-overlay.active {
+            display: flex;
         }
-        
-        .modal-content { 
-            background: white; 
-            width: 100%; 
-            max-width: 800px; 
+
+        .modal-content {
+            background: white;
+            width: 100%;
+            max-width: 800px;
             max-height: 90vh;
-            border-radius: 16px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-        
-        #map { 
-            height: 300px; 
-            width: 100%; 
+
+        #map {
+            height: 300px;
+            width: 100%;
             flex: 1;
         }
 
@@ -527,22 +527,22 @@
                 height: 420px;
             }
         }
-        
-        .modal-header { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            padding: 1rem; 
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
             border-bottom: 1px solid #eee;
             flex-shrink: 0;
         }
-        
-        .modal-actions { 
-            display: flex; 
+
+        .modal-actions {
+            display: flex;
             flex-direction: column;
-            gap: 0.5rem; 
-            padding: 1rem; 
-            border-top: 1px solid #eee; 
+            gap: 0.5rem;
+            padding: 1rem;
+            border-top: 1px solid #eee;
             flex-shrink: 0;
         }
 
@@ -650,10 +650,10 @@
     <script>
         // Array of time zone objects to manage them
         const timezones = [
-            { id: 'est', name: 'Eastern Standard Time', offset: -5, abbreviation: 'EST' },
-            { id: 'pst', name: 'Pacific Standard Time', offset: -8, abbreviation: 'PST' },
+            { id: 'new-york', name: 'New York, USA', offset: -5, abbreviation: 'EST' },
+            { id: 'los-angeles', name: 'Los Angeles, USA', offset: -8, abbreviation: 'PST' },
             { id: 'melbourne', name: 'South Melbourne, Australia', offset: 10, abbreviation: 'AEST' },
-            { id: 'lisbon', name: 'Lisbon, Portugal', offset: 1, abbreviation: 'WEST' },
+            { id: 'lisbon', name: 'Lisbon, Portugal', offset: 1, abbreviation: 'WEST', iana: 'Europe/Lisbon' },
         ];
 
         // Expanded and more flexible list of known timezones
@@ -765,15 +765,15 @@
             'auckland': { id: 'auckland', name: 'Auckland, New Zealand', offset: 12, abbreviation: 'NZST' },
             'wellington': { id: 'wellington', name: 'Wellington, New Zealand', offset: 12, abbreviation: 'NZST' },
 
-            // Generic zone shortcuts
-            'est': { id: 'est', name: 'Eastern Standard Time', offset: -5, abbreviation: 'EST' },
-            'edt': { id: 'edt', name: 'Eastern Daylight Time', offset: -4, abbreviation: 'EDT' },
-            'cst': { id: 'cst', name: 'Central Standard Time', offset: -6, abbreviation: 'CST' },
-            'cdt': { id: 'cdt', name: 'Central Daylight Time', offset: -5, abbreviation: 'CDT' },
-            'mst': { id: 'mst', name: 'Mountain Standard Time', offset: -7, abbreviation: 'MST' },
-            'mdt': { id: 'mdt', name: 'Mountain Daylight Time', offset: -6, abbreviation: 'MDT' },
-            'pst': { id: 'pst', name: 'Pacific Standard Time', offset: -8, abbreviation: 'PST' },
-            'pdt': { id: 'pdt', name: 'Pacific Daylight Time', offset: -7, abbreviation: 'PDT' },
+            // Generic zone shortcuts (display as representative city names)
+            'est': { id: 'est', name: 'New York, USA', offset: -5, abbreviation: 'EST' },
+            'edt': { id: 'edt', name: 'New York, USA', offset: -4, abbreviation: 'EDT' },
+            'cst': { id: 'cst', name: 'Chicago, USA', offset: -6, abbreviation: 'CST' },
+            'cdt': { id: 'cdt', name: 'Chicago, USA', offset: -5, abbreviation: 'CDT' },
+            'mst': { id: 'mst', name: 'Denver, USA', offset: -7, abbreviation: 'MST' },
+            'mdt': { id: 'mdt', name: 'Denver, USA', offset: -6, abbreviation: 'MDT' },
+            'pst': { id: 'pst', name: 'Los Angeles, USA', offset: -8, abbreviation: 'PST' },
+            'pdt': { id: 'pdt', name: 'Los Angeles, USA', offset: -7, abbreviation: 'PDT' },
             'gmt': { id: 'gmt', name: 'Greenwich Mean Time', offset: 0, abbreviation: 'GMT' },
             'utc': { id: 'utc', name: 'Coordinated Universal Time', offset: 0, abbreviation: 'UTC' }
         };
@@ -807,7 +807,7 @@
                 // Create a timezone object for user's location
                 const userTz = {
                     id: 'user-location',
-                    name: `Your Location (${userTimezone.replace(/_/g, ' ')})`,
+                    name: `Your Location (${ianaToCity(userTimezone)})`,
                     offset: offsetHours,
                     abbreviation: abbreviation,
                     iana: userTimezone
@@ -940,7 +940,7 @@
 
             // Mobile-first responsive layout
             const isMobile = window.innerWidth < 768;
-            
+
             if (isMobile) {
                 card.innerHTML = `
                     <div class="card-header">
@@ -1054,7 +1054,7 @@
                 if (isTouching) {
                     const touchMoveY = e.touches[0].clientY;
                     const diff = Math.abs(touchMoveY - touchStartY);
-                    
+
                     // If vertical movement is significant, allow scrolling
                     if (diff > 10) {
                         isTouching = false;
@@ -1345,7 +1345,7 @@
             // Make sure map sizes correctly after modal opens
             setTimeout(() => map.invalidateSize(), 50);
         }
-        
+
         function closeMapModal() {
             mapModal.classList.remove('active');
         }
@@ -1426,6 +1426,14 @@
             return 'GMT';
         }
 
+        // Helper: convert IANA zone like "America/Los_Angeles" to a friendly city name
+        function ianaToCity(iana) {
+            if (!iana || typeof iana !== 'string') return '';
+            const parts = iana.split('/');
+            const last = parts[parts.length - 1] || '';
+            return last.replace(/_/g, ' ');
+        }
+
         // --- DST-aware helpers using IANA timezones ---
         function getOffsetHoursForIanaAt(date, iana) {
             try {
@@ -1502,7 +1510,7 @@
             const offset = getOffsetHoursForTimeZone(iana);
             const abbr = getAbbreviationForTimeZone(iana);
             const id = iana.toLowerCase().replace(/\//g, '-');
-            const name = `Selected Location (${iana})`;
+            const name = `Selected Location (${ianaToCity(iana)})`;
             const newTz = { id, name, offset, abbreviation: abbr, iana: iana };
 
             const isDuplicate = timezones.some(tz => Math.abs(tz.offset - newTz.offset) < 0.1);
@@ -1541,7 +1549,7 @@
         function initializeApp() {
             // Add touch support
             addTouchSupport();
-            
+
             // Parse URL parameters first
             const urlParams = parseURLParameters();
 
