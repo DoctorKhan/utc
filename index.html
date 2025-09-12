@@ -488,70 +488,15 @@
             }
         }
 
-        /* Map modal styles - mobile responsive */
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.4);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 50;
-            padding: 1rem;
-        }
+        /* Map modal styles */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 50; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; width: 90%; max-width: 800px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; }
+        #map { height: 420px; width: 100%; }
 
-        .modal-overlay.active {
-            display: flex;
-        }
+        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid #eee; }
 
-        .modal-content {
-            background: white;
-            width: 100%;
-            max-width: 800px;
-            max-height: 90vh;
-            border-radius: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        #map {
-            height: 300px;
-            width: 100%;
-            flex: 1;
-        }
-
-        @media (min-width: 640px) {
-            #map {
-                height: 420px;
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1rem;
-            border-bottom: 1px solid #eee;
-            flex-shrink: 0;
-        }
-
-        .modal-actions {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            padding: 1rem;
-            border-top: 1px solid #eee;
-            flex-shrink: 0;
-        }
-
-        @media (min-width: 640px) {
-            .modal-actions {
-                flex-direction: row;
-                justify-content: flex-end;
-            }
-        }
+        .modal-actions { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; border-top: 1px solid #eee; justify-content: flex-end; }
 
         /* Mobile-specific utility classes */
         .mobile-hidden {
@@ -1406,8 +1351,6 @@
             for (const key in knownTimezones) {
                 const name = knownTimezones[key].name;
                 if (seen.has(name)) continue; // Avoid duplicate visible names
-
-
                 seen.add(name);
                 const option = document.createElement('option');
                 option.value = name;
@@ -1415,15 +1358,6 @@
             }
         }
 
-        // Map integration: pick timezone by clicking on a map
-        let map, mapMarker, mapInitialized = false, selectedLatLng = null;
-        const mapModal = document.getElementById('mapModal');
-        const useLocationBtn = document.getElementById('useLocationBtn');
-        const cancelMapBtn = document.getElementById('cancelMapBtn');
-        const closeMapBtn = document.getElementById('closeMapBtn');
-
-
-        // Ensure the map container has a concrete height based on modal layout
         function sizeMapToModal() {
             const content = mapModal.querySelector('.modal-content');
             const mapEl = document.getElementById('map');
@@ -1437,28 +1371,25 @@
             mapEl.style.height = mapH + 'px';
         }
 
+        // Map integration: pick timezone by clicking on a map
+        let map, mapMarker, mapInitialized = false, selectedLatLng = null;
+        const mapModal = document.getElementById('mapModal');
+        const useLocationBtn = document.getElementById('useLocationBtn');
+        const cancelMapBtn = document.getElementById('cancelMapBtn');
+        const closeMapBtn = document.getElementById('closeMapBtn');
+
         function openMapModal() {
-            try {
-                mapModal.classList.add('active');
-                // Ensure container has a concrete height
-                sizeMapToModal();
-                window.addEventListener('resize', sizeMapToModal);
-                // Create map after modal is visible to avoid 0-size issues
-                if (!mapInitialized) {
-                    initMap();
-                    mapInitialized = true;
-                }
-                // Invalidate size a few times to be safe
-
-
-                const invalidate = () => { try { map && map.invalidateSize(); } catch (_) {} };
-                requestAnimationFrame(() => { sizeMapToModal(); invalidate(); });
-                setTimeout(() => { sizeMapToModal(); invalidate(); }, 60);
-                setTimeout(() => { sizeMapToModal(); invalidate(); }, 200);
-            } catch (e) {
-                console.error('openMapModal error', e);
-                showMessage('Could not open map. See console for details.', true);
+            mapModal.classList.add('active');
+            if (!mapInitialized) {
+                initMap();
+                mapInitialized = true;
             }
+            // Make sure map sizes correctly after modal opens
+            setTimeout(() => {
+                if (map) {
+                    map.invalidateSize();
+                }
+            }, 50);
         }
 
         function closeMapModal() {
@@ -1634,7 +1565,7 @@
             const name = ianaToCity(iana);
             const newTz = { id, name, offset, abbreviation: abbr, iana: iana };
 
-            const isDuplicate = timezones.some(tz => Math.abs(tz.offset - newTz.offset) < 0.1);
+            const isDuplicate = timezones.some(tz => Math.abs(getOffsetHoursForTimezone(new Date(), tz) - offset) < 0.1);
             if (isDuplicate) {
                 showMessage(`${name} is already covered by another timezone in your list.`, true);
                 return;
@@ -1708,6 +1639,20 @@
             renderTimezones();
 
             // Initial local time display update
+            updateLocalTimeDisplay();
+
+            // Start the continuous time updates
+            setInterval(() => {
+                updateTimeDisplays();
+                updateLocalTimeDisplay();
+            }, 1000);
+        }
+
+        // Initialize the application
+        initializeApp();
+    </script>
+</body>
+</html>
             updateLocalTimeDisplay();
 
             // Start the continuous time updates
