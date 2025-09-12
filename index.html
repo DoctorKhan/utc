@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Universal Time Converter</title>
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
     <script>
@@ -40,6 +40,20 @@
             color: #374151;
             min-height: 100vh;
             background-attachment: fixed;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Mobile-friendly body padding */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+                background-attachment: scroll; /* Better performance on mobile */
+            }
         }
 
         /* Enhanced slider styles with gradient track */
@@ -47,7 +61,7 @@
             -webkit-appearance: none;
             appearance: none;
             width: 100%;
-            height: 10px;
+            height: 12px; /* Slightly larger for mobile */
             background: linear-gradient(90deg,
                 #1e3a8a 0%,     /* Deep night blue */
                 #3b82f6 12.5%,  /* Dawn blue */
@@ -69,6 +83,14 @@
                 inset 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
+        /* Mobile-specific slider adjustments */
+        @media (max-width: 768px) {
+            input[type="range"] {
+                height: 16px; /* Larger touch target */
+                margin-top: 1.5rem;
+            }
+        }
+
         input[type="range"]::-webkit-slider-runnable-track {
             -webkit-appearance: none;
             background: transparent;
@@ -82,8 +104,8 @@
 
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 28px;
-            height: 28px;
+            width: 32px; /* Larger for mobile */
+            height: 32px;
             background: radial-gradient(circle, #ffffff 30%, #fbbf24 70%);
             border: 3px solid #f59e0b;
             border-radius: 50%;
@@ -98,8 +120,8 @@
         }
 
         input[type="range"]::-moz-range-thumb {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             background: radial-gradient(circle, #ffffff 30%, #fbbf24 70%);
             border: 3px solid #f59e0b;
             border-radius: 50%;
@@ -113,6 +135,26 @@
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Mobile hover states using touch */
+        @media (hover: hover) {
+            input[type="range"]:hover::-webkit-slider-thumb {
+                transform: scale(1.1);
+                box-shadow:
+                    0 8px 24px rgba(251, 191, 36, 0.5),
+                    0 3px 8px rgba(0, 0, 0, 0.25),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            }
+
+            input[type="range"]:hover::-moz-range-thumb {
+                transform: scale(1.1);
+                box-shadow:
+                    0 8px 24px rgba(251, 191, 36, 0.5),
+                    0 3px 8px rgba(0, 0, 0, 0.25),
+                    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            }
+        }
+
+        /* Active states for touch devices */
         input[type="range"]:active::-webkit-slider-thumb {
             cursor: grabbing;
             transform: scale(1.2);
@@ -131,22 +173,6 @@
                 inset 0 1px 2px rgba(255, 255, 255, 0.9);
         }
 
-        input[type="range"]:hover::-webkit-slider-thumb {
-            transform: scale(1.1);
-            box-shadow:
-                0 8px 24px rgba(251, 191, 36, 0.5),
-                0 3px 8px rgba(0, 0, 0, 0.25),
-                inset 0 1px 2px rgba(255, 255, 255, 0.8);
-        }
-
-        input[type="range"]:hover::-moz-range-thumb {
-            transform: scale(1.1);
-            box-shadow:
-                0 8px 24px rgba(251, 191, 36, 0.5),
-                0 3px 8px rgba(0, 0, 0, 0.25),
-                inset 0 1px 2px rgba(255, 255, 255, 0.8);
-        }
-
         .time-labels {
             display: flex;
             justify-content: space-between;
@@ -154,6 +180,14 @@
             font-size: 1rem;
             margin-top: 0.75rem;
             font-weight: 600;
+        }
+
+        /* Mobile time labels */
+        @media (max-width: 480px) {
+            .time-labels {
+                font-size: 1.2rem; /* Larger emojis for mobile */
+                margin-top: 1rem;
+            }
         }
 
         .time-labels span {
@@ -169,8 +203,8 @@
             background:
                 linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(254, 251, 247, 0.8) 100%);
             backdrop-filter: blur(10px);
-            padding: 2rem;
-            border-radius: 24px;
+            padding: 1.5rem; /* Reduced padding for mobile */
+            border-radius: 20px; /* Slightly smaller radius */
             box-shadow:
                 0 10px 30px -10px rgba(251, 146, 60, 0.2),
                 0 6px 20px -6px rgba(59, 130, 246, 0.1),
@@ -178,12 +212,53 @@
             border: 1px solid rgba(251, 146, 60, 0.15);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             position: relative;
-            min-height: 140px;
+            min-height: 120px; /* Reduced for mobile */
             display: flex;
-            align-items: center;
+            flex-direction: column; /* Stack vertically on mobile */
+            gap: 1rem;
             overflow: hidden;
-            touch-action: none; /* Disable all touch actions on the card itself */
-        }        .timezone-card::before {
+            touch-action: pan-y; /* Allow vertical scrolling but prevent horizontal pan */
+        }
+
+        /* Desktop layout for timezone cards */
+        @media (min-width: 768px) {
+            .timezone-card {
+                flex-direction: row;
+                align-items: center;
+                padding: 2rem;
+                min-height: 140px;
+            }
+        }
+
+        /* Mobile-specific card layout */
+        @media (max-width: 767px) {
+            .timezone-card {
+                padding: 1.25rem;
+            }
+            
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                width: 100%;
+            }
+            
+            .card-content {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                width: 100%;
+            }
+            
+            .time-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+        }
+
+        .timezone-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -195,25 +270,28 @@
             transition: opacity 0.3s ease;
         }
 
-        .timezone-card:hover {
-            box-shadow:
-                0 20px 45px -10px rgba(251, 146, 60, 0.3),
-                0 12px 30px -6px rgba(59, 130, 246, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.8);
-            transform: translateY(-5px) scale(1.02);
-            border-color: rgba(251, 146, 60, 0.3);
-        }
+        /* Only apply hover effects on devices that support hover */
+        @media (hover: hover) {
+            .timezone-card:hover {
+                box-shadow:
+                    0 20px 45px -10px rgba(251, 146, 60, 0.3),
+                    0 12px 30px -6px rgba(59, 130, 246, 0.2),
+                    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+                transform: translateY(-5px) scale(1.02);
+                border-color: rgba(251, 146, 60, 0.3);
+            }
 
-        .timezone-card:hover::before {
-            opacity: 1;
+            .timezone-card:hover::before {
+                opacity: 1;
+            }
         }
 
         .close-button {
             position: absolute;
             top: 0.75rem;
             right: 0.75rem;
-            width: 32px;
-            height: 32px;
+            width: 36px; /* Larger for mobile */
+            height: 36px;
             color: #fb923c;
             background: linear-gradient(135deg, #fef7f0 0%, #fed7aa 100%);
             border: 1px solid #fed7aa;
@@ -223,60 +301,101 @@
             align-items: center;
             justify-content: center;
             transition: all 0.3s ease;
-            opacity: 0.7;
+            opacity: 0.8;
+            z-index: 10;
         }
 
-        .close-button:hover {
-            color: #ea580c;
-            background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%);
-            border-color: #fb923c;
-            opacity: 1;
-            transform: scale(1.1) rotate(90deg);
-            box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
+        /* Mobile close button */
+        @media (max-width: 768px) {
+            .close-button {
+                width: 40px;
+                height: 40px;
+                top: 0.5rem;
+                right: 0.5rem;
+            }
+        }
+
+        @media (hover: hover) {
+            .close-button:hover {
+                color: #ea580c;
+                background: linear-gradient(135deg, #fed7aa 0%, #fb923c 100%);
+                border-color: #fb923c;
+                opacity: 1;
+                transform: scale(1.1) rotate(90deg);
+                box-shadow: 0 4px 12px rgba(251, 146, 60, 0.3);
+            }
         }
 
         .time-display {
             font-variant-numeric: tabular-nums;
             font-feature-settings: "tnum";
-            width: 120px;
-            text-align: right;
+            text-align: center;
+        }
+
+        /* Desktop time display */
+        @media (min-width: 768px) {
+            .time-display {
+                width: 120px;
+                text-align: right;
+            }
         }
 
         .timezone-info {
-            min-width: 200px;
+            flex: 1;
+        }
+
+        /* Desktop timezone info */
+        @media (min-width: 768px) {
+            .timezone-info {
+                min-width: 200px;
+                flex: initial;
+            }
         }
 
         .slider-container {
             flex: 1;
-            max-width: 300px;
             position: relative;
-            touch-action: auto; /* Allow touch actions on the slider */
+            touch-action: auto;
         }
 
-        /* Drag and drop styles */
+        /* Desktop slider container */
+        @media (min-width: 768px) {
+            .slider-container {
+                max-width: 300px;
+            }
+        }
+
+        /* Drag and drop styles - disabled on mobile */
         .drag-handle {
             position: absolute;
             left: 0;
             top: 0;
             bottom: 0;
             width: 40px;
-            display: flex;
+            display: none; /* Hidden on mobile by default */
             align-items: center;
             justify-content: center;
             color: #9ca3af;
             cursor: grab;
             opacity: 0;
             transition: opacity 0.2s ease, color 0.2s ease;
-            touch-action: none; /* Prevent scrolling when trying to drag */
+            touch-action: none;
         }
 
-        .timezone-card:hover .drag-handle {
-            opacity: 0.6;
-        }
+        /* Show drag handle only on desktop */
+        @media (min-width: 768px) and (hover: hover) {
+            .drag-handle {
+                display: flex;
+            }
+            
+            .timezone-card:hover .drag-handle {
+                opacity: 0.6;
+            }
 
-        .drag-handle:hover {
-            color: #3b82f6;
-            opacity: 1;
+            .drag-handle:hover {
+                color: #3b82f6;
+                opacity: 1;
+            }
         }
 
         .drag-handle:active {
@@ -319,6 +438,13 @@
             box-shadow: 0 0 0 3px rgba(251, 146, 60, 0.2);
         }
 
+        /* Mobile input adjustments */
+        @media (max-width: 768px) {
+            #timezoneInput {
+                font-size: 16px; /* Prevents zoom on iOS */
+            }
+        }
+
         /* Smooth scrolling for container */
         #timezoneContainer {
             scroll-behavior: smooth;
@@ -334,23 +460,139 @@
         .message-animate {
             animation: pulse 0.5s ease-in-out;
         }
-        /* Map modal styles */
-        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; align-items: center; justify-content: center; z-index: 50; }
-        .modal-overlay.active { display: flex; }
-        .modal-content { background: white; width: 90%; max-width: 800px; border-radius: 16px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); overflow: hidden; }
-        #map { height: 420px; width: 100%; }
-        .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem 1rem; border-bottom: 1px solid #eee; }
-        .modal-actions { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; border-top: 1px solid #eee; justify-content: flex-end; }
+
+        /* Mobile-friendly input section */
+        .input-section {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        @media (min-width: 640px) {
+            .input-section {
+                flex-direction: row;
+                align-items: center;
+            }
+        }
+
+        /* Mobile button adjustments */
+        .mobile-btn {
+            padding: 0.875rem 1.5rem;
+            font-size: 0.9rem;
+            min-height: 48px; /* Touch target minimum */
+        }
+
+        @media (min-width: 640px) {
+            .mobile-btn {
+                padding: 1rem 2rem;
+                font-size: 1rem;
+            }
+        }
+
+        /* Map modal styles - mobile responsive */
+        .modal-overlay { 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.4); 
+            display: none; 
+            align-items: center; 
+            justify-content: center; 
+            z-index: 50;
+            padding: 1rem;
+        }
+        
+        .modal-overlay.active { 
+            display: flex; 
+        }
+        
+        .modal-content { 
+            background: white; 
+            width: 100%; 
+            max-width: 800px; 
+            max-height: 90vh;
+            border-radius: 16px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        #map { 
+            height: 300px; 
+            width: 100%; 
+            flex: 1;
+        }
+
+        @media (min-width: 640px) {
+            #map {
+                height: 420px;
+            }
+        }
+        
+        .modal-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 1rem; 
+            border-bottom: 1px solid #eee;
+            flex-shrink: 0;
+        }
+        
+        .modal-actions { 
+            display: flex; 
+            flex-direction: column;
+            gap: 0.5rem; 
+            padding: 1rem; 
+            border-top: 1px solid #eee; 
+            flex-shrink: 0;
+        }
+
+        @media (min-width: 640px) {
+            .modal-actions {
+                flex-direction: row;
+                justify-content: flex-end;
+            }
+        }
+
+        /* Mobile-specific utility classes */
+        .mobile-hidden {
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .mobile-hidden {
+                display: block;
+            }
+        }
+
+        .mobile-only {
+            display: block;
+        }
+
+        @media (min-width: 768px) {
+            .mobile-only {
+                display: none;
+            }
+        }
+
+        /* Improve touch scrolling */
+        #timezoneContainer {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Prevent pull-to-refresh on mobile */
+        body {
+            overscroll-behavior-y: contain;
+        }
     </style>
 </head>
-<body class="p-8 min-h-screen flex flex-col items-center">
+<body class="p-4 md:p-8 min-h-screen flex flex-col items-center">
 
     <!-- Main Container -->
     <div class="max-w-4xl w-full">
         <!-- Header -->
-        <div class="text-center mb-10">
-            <h1 class="text-4xl font-bold bg-gradient-to-r from-orange-500 to-blue-500 bg-clip-text text-transparent mb-2">🌍 Time Zone Converter</h1>
-            <p class="text-gray-600 text-lg">Sync your world, one timezone at a time ✨</p>
+        <div class="text-center mb-6 md:mb-10">
+            <h1 class="text-3xl md:text-4xl font-bold bg-gradient-to-r from-orange-500 to-blue-500 bg-clip-text text-transparent mb-2">🌍 Time Zone Converter</h1>
+            <p class="text-gray-600 text-base md:text-lg">Sync your world, one timezone at a time ✨</p>
             <div class="flex items-center justify-center space-x-2 mt-4">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -360,43 +602,50 @@
         </div>
 
         <!-- Add Time Zone Input with Dropdown -->
-        <div class="flex items-center space-x-4 mb-8 p-6 bg-gradient-to-r from-orange-50/80 to-blue-50/80 backdrop-blur-sm rounded-3xl shadow-xl border border-orange-200/50 relative overflow-hidden">
+        <div class="input-section flex flex-col sm:flex-row items-stretch sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 mb-6 md:mb-8 p-4 md:p-6 bg-gradient-to-r from-orange-50/80 to-blue-50/80 backdrop-blur-sm rounded-2xl md:rounded-3xl shadow-xl border border-orange-200/50 relative overflow-hidden">
             <div class="absolute inset-0 bg-gradient-to-r from-white/20 to-white/10"></div>
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-orange-500 relative z-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-            </svg>
-            <input type="text" id="timezoneInput" list="timezoneOptions" placeholder="🏙️ Add a city like Tokyo, London, or New York..." class="flex-grow p-4 border-none rounded-xl outline-none focus:ring-0 text-gray-700 bg-white/80 backdrop-blur-sm shadow-lg focus:bg-white focus:shadow-xl transition-all duration-300 relative z-10">
-            <datalist id="timezoneOptions"></datalist>
-            <button id="addTimezoneBtn" class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-8 py-4 rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95 relative z-10">
-                <span class="flex items-center space-x-2">
-                    <span>✚</span>
-                    <span>Add</span>
-                </span>
-            </button>
-            <button id="openMapBtn" class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-4 rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95 relative z-10">Pick on Map</button>
+            <div class="flex items-center space-x-3 flex-grow relative z-10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 md:h-6 md:w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="timezoneInput" list="timezoneOptions" placeholder="🏙️ Add a city like Tokyo, London..." class="flex-grow p-3 md:p-4 border-none rounded-xl outline-none focus:ring-0 text-gray-700 bg-white/80 backdrop-blur-sm shadow-lg focus:bg-white focus:shadow-xl transition-all duration-300 text-base">
+                <datalist id="timezoneOptions"></datalist>
+            </div>
+            <div class="flex space-x-2 relative z-10">
+                <button id="addTimezoneBtn" class="mobile-btn flex-1 sm:flex-initial bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95">
+                    <span class="flex items-center justify-center space-x-2">
+                        <span>✚</span>
+                        <span>Add</span>
+                    </span>
+                </button>
+                <button id="openMapBtn" class="mobile-btn flex-1 sm:flex-initial bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95">
+                    <span class="hidden sm:inline">Pick on Map</span>
+                    <span class="sm:hidden">Map</span>
+                </button>
+            </div>
         </div>
         <div id="messageContainer" class="text-center mb-4 transition-all duration-300 opacity-0 rounded-xl"></div>
 
         <!-- Time Zone Cards Container -->
-        <div id="timezoneContainer" class="space-y-4">
+        <div id="timezoneContainer" class="space-y-3 md:space-y-4">
             <!-- Time zones will be dynamically added here -->
         </div>
     </div>
+
     <!-- Map Modal -->
     <div id="mapModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="mapTitle">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="mapTitle" class="text-lg font-semibold">Pick a location on the map</h3>
-                <button id="closeMapBtn" class="text-gray-500 hover:text-gray-700">✕</button>
+                <button id="closeMapBtn" class="text-gray-500 hover:text-gray-700 w-8 h-8 flex items-center justify-center">✕</button>
             </div>
             <div id="map"></div>
             <div class="modal-actions">
-                <button id="useLocationBtn" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Use Selected Location</button>
-                <button id="cancelMapBtn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
+                <button id="useLocationBtn" class="bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 font-medium">Use Selected Location</button>
+                <button id="cancelMapBtn" class="bg-gray-200 text-gray-800 px-4 py-3 rounded-lg hover:bg-gray-300 font-medium">Cancel</button>
             </div>
         </div>
     </div>
-
 
     <script>
         // Array of time zone objects to manage them
@@ -587,31 +836,6 @@
                 const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
                 const suggestions = [];
 
-                // Map common timezone identifiers to our known timezones
-                const timezoneMapping = {
-                    'Asia/Tokyo': 'tokyo',
-                    'Europe/London': 'london',
-                    'America/New_York': 'new york',
-                    'America/Chicago': 'chicago',
-                    'America/Denver': 'denver',
-                    'America/Los_Angeles': 'los angeles',
-                    'Europe/Berlin': 'berlin',
-                    'Asia/Dubai': 'dubai',
-                    'Asia/Kolkata': 'mumbai',
-                    'Asia/Makassar': 'bali',
-                    'Asia/Jakarta': 'jakarta',
-                    'Asia/Singapore': 'singapore',
-                    'Asia/Hong_Kong': 'hong kong',
-                    'Australia/Sydney': 'sydney',
-                    'Europe/Paris': 'paris',
-                    'Europe/Moscow': 'moscow',
-                    'Africa/Cairo': 'cairo',
-                    'Asia/Bangkok': 'bangkok',
-                    'Asia/Seoul': 'seoul',
-                    'Australia/Melbourne': 'melbourne',
-                    'Europe/Lisbon': 'lisbon'
-                };
-
                 // Add related timezones based on user's location
                 if (userTimezone.includes('Asia')) {
                     suggestions.push('tokyo', 'singapore', 'bali', 'mumbai', 'dubai');
@@ -695,10 +919,10 @@
             window.history.replaceState({}, '', newURL);
         }
 
-        // Function to create a new time zone card element
+        // Function to create a new time zone card element - mobile optimized
         function createTimezoneCard(timezone, index) {
             const card = document.createElement('div');
-            card.className = `timezone-card flex items-center justify-between space-x-6 mb-4`;
+            card.className = `timezone-card mb-3 md:mb-4`;
             card.dataset.index = index;
 
             // Compute display strings with DST-aware IANA timezone if available
@@ -714,41 +938,77 @@
 
             const abbrDisplay = timezone.iana ? getAbbreviationForTimeZone(timezone.iana) : (timezone.abbreviation || ('GMT' + (timezone.offset >= 0 ? '+' : '') + timezone.offset));
 
-
-            card.innerHTML = `
-                <div class="drag-handle">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-                    </svg>
-                </div>
-                <div class="timezone-info">
-                    <p class="text-lg font-semibold text-gray-700 truncate">${timezone.name}</p>
-                    <p class="text-sm font-medium text-orange-600">${abbrDisplay}</p>
-                </div>
-                <div class="time-display">
-                    <p class="text-3xl font-medium bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent mb-0 leading-tight">${timeString}</p>
-                    <p class="text-sm text-gray-500 font-medium">${dateString}</p>
-                </div>
-                <div class="slider-container">
-                    <input type="range" class="w-full" min="0" max="24" step="0.25" value="12">
-                    <div class="time-labels">
-                        <span>🌙</span>
-                        <span>🌅</span>
-                        <span>☀️</span>
-                        <span>🌇</span>
-                        <span>🌙</span>
+            // Mobile-first responsive layout
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="timezone-info">
+                            <p class="text-lg font-semibold text-gray-700 truncate">${timezone.name}</p>
+                            <p class="text-sm font-medium text-orange-600">${abbrDisplay}</p>
+                        </div>
+                        <button class="close-button" onclick="removeTimezone(${index})">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
                     </div>
-                </div>
-                <button class="close-button" onclick="removeTimezone(${index})">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            `;
+                    <div class="card-content">
+                        <div class="time-section">
+                            <div class="time-display">
+                                <p class="text-2xl md:text-3xl font-medium bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent mb-0 leading-tight">${timeString}</p>
+                                <p class="text-sm text-gray-500 font-medium">${dateString}</p>
+                            </div>
+                        </div>
+                        <div class="slider-container">
+                            <input type="range" class="w-full" min="0" max="24" step="0.25" value="12">
+                            <div class="time-labels">
+                                <span>🌙</span>
+                                <span>🌅</span>
+                                <span>☀️</span>
+                                <span>🌇</span>
+                                <span>🌙</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                card.innerHTML = `
+                    <div class="drag-handle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                    </div>
+                    <div class="timezone-info">
+                        <p class="text-lg font-semibold text-gray-700 truncate">${timezone.name}</p>
+                        <p class="text-sm font-medium text-orange-600">${abbrDisplay}</p>
+                    </div>
+                    <div class="time-display">
+                        <p class="text-3xl font-medium bg-gradient-to-r from-orange-600 to-blue-600 bg-clip-text text-transparent mb-0 leading-tight">${timeString}</p>
+                        <p class="text-sm text-gray-500 font-medium">${dateString}</p>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" class="w-full" min="0" max="24" step="0.25" value="12">
+                        <div class="time-labels">
+                            <span>🌙</span>
+                            <span>🌅</span>
+                            <span>☀️</span>
+                            <span>🌇</span>
+                            <span>🌙</span>
+                        </div>
+                    </div>
+                    <button class="close-button" onclick="removeTimezone(${index})">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                `;
+            }
 
-            // Make the drag handle draggable
+            // Make the drag handle draggable only on desktop
             const dragHandle = card.querySelector('.drag-handle');
-            if (dragHandle) {
+            if (dragHandle && !isMobile) {
                 dragHandle.addEventListener('mousedown', () => {
                     card.draggable = true;
                 });
@@ -757,13 +1017,56 @@
                 });
             }
 
+            // Prevent drag on mobile
             card.addEventListener('dragstart', (e) => {
-                if (!card.draggable) {
+                if (isMobile || !card.draggable) {
                     e.preventDefault();
                 }
             });
 
             return card;
+        }
+
+        // Add window resize handler to re-render cards when switching between mobile/desktop
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                renderTimezones();
+            }, 100);
+        });
+
+        // Enhanced touch handling for sliders
+        function addTouchSupport() {
+            let touchStartY = 0;
+            let isTouching = false;
+
+            document.addEventListener('touchstart', (e) => {
+                const slider = e.target.closest('input[type="range"]');
+                if (slider) {
+                    touchStartY = e.touches[0].clientY;
+                    isTouching = true;
+                    e.preventDefault(); // Prevent scrolling when interacting with slider
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchmove', (e) => {
+                if (isTouching) {
+                    const touchMoveY = e.touches[0].clientY;
+                    const diff = Math.abs(touchMoveY - touchStartY);
+                    
+                    // If vertical movement is significant, allow scrolling
+                    if (diff > 10) {
+                        isTouching = false;
+                    } else {
+                        e.preventDefault(); // Continue preventing scroll for horizontal slider interaction
+                    }
+                }
+            }, { passive: false });
+
+            document.addEventListener('touchend', () => {
+                isTouching = false;
+            });
         }
 
         // Function to update the position of all sliders based on the central currentTime
@@ -894,7 +1197,7 @@
                     dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
                 }
 
-                const timeElement = card.querySelector('.time-display p.text-3xl');
+                const timeElement = card.querySelector('.time-display p.text-2xl, .time-display p.text-3xl');
                 const dateElement = card.querySelector('.time-display p.text-sm');
 
                 if (timeElement) timeElement.textContent = timeString;
@@ -1026,22 +1329,6 @@
             }
         }
 
-        // Function to copy current URL to clipboard (share functionality)
-        function shareCurrentState() {
-            updateURL(); // Ensure URL is up to date
-            const currentURL = window.location.href;
-
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(currentURL).then(() => {
-                    showMessage('Link copied to clipboard!', false);
-                }).catch(() => {
-                    showMessage('Failed to copy link. Please copy manually from address bar.', true);
-                });
-            } else {
-                // Fallback for older browsers
-                showMessage('Copy this link: ' + currentURL, false);
-            }
-        }
         // Map integration: pick timezone by clicking on a map
         let map, mapMarker, mapInitialized = false, selectedLatLng = null;
         const mapModal = document.getElementById('mapModal');
@@ -1058,6 +1345,7 @@
             // Make sure map sizes correctly after modal opens
             setTimeout(() => map.invalidateSize(), 50);
         }
+        
         function closeMapModal() {
             mapModal.classList.remove('active');
         }
@@ -1215,7 +1503,7 @@
             const abbr = getAbbreviationForTimeZone(iana);
             const id = iana.toLowerCase().replace(/\//g, '-');
             const name = `Selected Location (${iana})`;
-            const newTz = { id, name, offset, abbreviation: abbr };
+            const newTz = { id, name, offset, abbreviation: abbr, iana: iana };
 
             const isDuplicate = timezones.some(tz => Math.abs(tz.offset - newTz.offset) < 0.1);
             if (isDuplicate) {
@@ -1241,7 +1529,6 @@
         cancelMapBtn.addEventListener('click', closeMapModal);
         closeMapBtn.addEventListener('click', closeMapModal);
 
-
         // Event listeners
         addTimezoneBtn.addEventListener('click', addTimezoneFromInput);
         timezoneInput.addEventListener('keydown', (event) => {
@@ -1250,11 +1537,11 @@
             }
         });
 
-        // Share button event listener (removed share button from UI)
-        // document.getElementById('shareBtn').addEventListener('click', shareCurrentState);
-
-        // Initialize the application
+        // Initialize the application with mobile support
         function initializeApp() {
+            // Add touch support
+            addTouchSupport();
+            
             // Parse URL parameters first
             const urlParams = parseURLParameters();
 
@@ -1306,4 +1593,3 @@
     </script>
 </body>
 </html>
-
