@@ -650,9 +650,9 @@
     <script>
         // Array of time zone objects to manage them
         const timezones = [
-            { id: 'new-york', name: 'New York, USA', offset: -5, abbreviation: 'EST' },
-            { id: 'los-angeles', name: 'Los Angeles, USA', offset: -8, abbreviation: 'PST' },
-            { id: 'melbourne', name: 'South Melbourne, Australia', offset: 10, abbreviation: 'AEST' },
+            { id: 'new-york', name: 'New York, USA', offset: -5, abbreviation: 'EST', iana: 'America/New_York' },
+            { id: 'los-angeles', name: 'Los Angeles, USA', offset: -8, abbreviation: 'PST', iana: 'America/Los_Angeles' },
+            { id: 'melbourne', name: 'South Melbourne, Australia', offset: 10, abbreviation: 'AEST', iana: 'Australia/Melbourne' },
             { id: 'lisbon', name: 'Lisbon, Portugal', offset: 1, abbreviation: 'WEST', iana: 'Europe/Lisbon' },
         ];
 
@@ -665,7 +665,7 @@
             'sf': { id: 'san-francisco', name: 'San Francisco, USA', offset: -7, abbreviation: 'PDT' },
             'san jose': { id: 'san-jose', name: 'San Jose, USA', offset: -7, abbreviation: 'PDT' },
             'san diego': { id: 'san-diego', name: 'San Diego, USA', offset: -7, abbreviation: 'PDT' },
-            'los angeles': { id: 'los-angeles', name: 'Los Angeles, USA', offset: -7, abbreviation: 'PDT' },
+            'los angeles': { id: 'los-angeles', name: 'Los Angeles, USA', offset: -7, abbreviation: 'PDT', iana: 'America/Los_Angeles' },
             'vancouver': { id: 'vancouver', name: 'Vancouver, Canada', offset: -7, abbreviation: 'PDT' },
             'phoenix': { id: 'phoenix', name: 'Phoenix, USA', offset: -7, abbreviation: 'MST' },
             // Americas - Mountain
@@ -680,7 +680,7 @@
             'mexico city': { id: 'mexico-city', name: 'Mexico City, Mexico', offset: -6, abbreviation: 'CST' },
             'winnipeg': { id: 'winnipeg', name: 'Winnipeg, Canada', offset: -5, abbreviation: 'CDT' },
             // Americas - Eastern
-            'new york': { id: 'new-york', name: 'New York, USA', offset: -4, abbreviation: 'EDT' },
+            'new york': { id: 'new-york', name: 'New York, USA', offset: -4, abbreviation: 'EDT', iana: 'America/New_York' },
             'toronto': { id: 'toronto', name: 'Toronto, Canada', offset: -4, abbreviation: 'EDT' },
             'boston': { id: 'boston', name: 'Boston, USA', offset: -4, abbreviation: 'EDT' },
             'miami': { id: 'miami', name: 'Miami, USA', offset: -4, abbreviation: 'EDT' },
@@ -761,7 +761,7 @@
             'adelaide': { id: 'adelaide', name: 'Adelaide, Australia', offset: 9.5, abbreviation: 'ACST' },
             'brisbane': { id: 'brisbane', name: 'Brisbane, Australia', offset: 10, abbreviation: 'AEST' },
             'sydney': { id: 'sydney', name: 'Sydney, Australia', offset: 10, abbreviation: 'AEST' },
-            'melbourne': { id: 'melbourne', name: 'Melbourne, Australia', offset: 10, abbreviation: 'AEST' },
+            'melbourne': { id: 'melbourne', name: 'Melbourne, Australia', offset: 10, abbreviation: 'AEST', iana: 'Australia/Melbourne' },
             'auckland': { id: 'auckland', name: 'Auckland, New Zealand', offset: 12, abbreviation: 'NZST' },
             'wellington': { id: 'wellington', name: 'Wellington, New Zealand', offset: 12, abbreviation: 'NZST' },
 
@@ -931,9 +931,10 @@
                 timeString = new Intl.DateTimeFormat('en-US', { timeZone: timezone.iana, hour: '2-digit', minute: '2-digit' }).format(currentTime);
                 dateString = new Intl.DateTimeFormat('en-US', { timeZone: timezone.iana, weekday: 'short', month: 'short', day: 'numeric' }).format(currentTime);
             } else {
-                const now = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
-                timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                // Fallback for fixed-offset zones: shift UTC and format as UTC to avoid local-zone interference
+                const utcShifted = new Date(currentTime.getTime() + timezone.offset * 3600000);
+                timeString = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }).format(utcShifted);
+                dateString = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' }).format(utcShifted);
             }
 
             const abbrDisplay = timezone.iana ? getAbbreviationForTimeZone(timezone.iana) : (timezone.abbreviation || ('GMT' + (timezone.offset >= 0 ? '+' : '') + timezone.offset));
@@ -1075,12 +1076,18 @@
                 const index = slider.closest('.timezone-card').dataset.index;
                 const timezone = timezones[index];
 
-                // Compute local time in this timezone for the current UTC time
-                const offsetHours = getOffsetHoursForTimezone(currentTime, timezone);
-                const now = new Date(currentTime.getTime() + offsetHours * 60 * 60 * 1000);
+                let hours, minutes;
+                if (timezone.iana) {
+                    const p = getZonedParts(currentTime, timezone.iana);
+                    hours = p.h;
+                    minutes = p.min;
+                } else {
+                    const shifted = new Date(currentTime.getTime() + timezone.offset * 3600000);
+                    hours = shifted.getUTCHours();
+                    minutes = shifted.getUTCMinutes();
+                }
 
-                const hours = now.getHours();
-                const minutes = now.getMinutes();
+
                 const value = hours + minutes / 60;
                 slider.value = value;
             });
@@ -1101,6 +1108,10 @@
 
             // Add drag and drop event listeners
             addDragAndDropListeners();
+
+
+            // Quick consistency check after rendering
+            runConsistencyChecks();
 
             // Initial update of all displays and sliders
             updateTimeDisplays();
@@ -1138,6 +1149,8 @@
                 e.preventDefault();
             }
             e.dataTransfer.dropEffect = 'move';
+
+
             return false;
         }
 
@@ -1192,9 +1205,10 @@
                     timeString = new Intl.DateTimeFormat('en-US', { timeZone: timezone.iana, hour: '2-digit', minute: '2-digit' }).format(currentTime);
                     dateString = new Intl.DateTimeFormat('en-US', { timeZone: timezone.iana, weekday: 'short', month: 'short', day: 'numeric' }).format(currentTime);
                 } else {
-                    const now = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
-                    timeString = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                    dateString = now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+                    // Fallback for fixed-offset zones: compute by shifting UTC and format in UTC
+                    const utcShifted = new Date(currentTime.getTime() + timezone.offset * 3600000);
+                    timeString = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', hour: '2-digit', minute: '2-digit' }).format(utcShifted);
+                    dateString = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' }).format(utcShifted);
                 }
 
                 const timeElement = card.querySelector('.time-display p.text-2xl, .time-display p.text-3xl');
@@ -1240,14 +1254,15 @@
                 const utcDate = utcFromZoned(timezone.iana, y, m, d, selHour, selMinute);
                 currentTime = utcDate;
             } else {
-                // Fallback using fixed offset
-                const nowInTimezone = new Date(currentTime.getTime() + timezone.offset * 60 * 60 * 1000);
-                nowInTimezone.setHours(selHour, selMinute, 0, 0);
-                currentTime = new Date(nowInTimezone.getTime() - timezone.offset * 60 * 60 * 1000);
+                // Fallback using fixed offset (operate in UTC to avoid local-zone interference)
+                const nowInTimezone = new Date(currentTime.getTime() + timezone.offset * 3600000);
+                nowInTimezone.setUTCHours(selHour, selMinute, 0, 0);
+                currentTime = new Date(nowInTimezone.getTime() - timezone.offset * 3600000);
             }
 
             updateTimeDisplays();
             updateSliderPositions();
+            runConsistencyChecks();
         }
 
         // Function to display a temporary message
@@ -1258,6 +1273,49 @@
                 messageContainer.className = `text-center mb-4 transition-all duration-300 opacity-0`;
             }, 3000);
         }
+
+        // --- Consistency checks and lightweight unit tests ---
+        function minutesInDayForTimezone(date, timezone) {
+            if (timezone.iana) {
+                const p = getZonedParts(date, timezone.iana);
+                return p.h * 60 + p.min;
+            } else {
+                const shifted = new Date(date.getTime() + timezone.offset * 3600000);
+                return shifted.getUTCHours() * 60 + shifted.getUTCMinutes();
+            }
+        }
+
+        function runConsistencyChecks() {
+            if (!Array.isArray(timezones) || timezones.length < 2) return true;
+            const errs = [];
+            for (let i = 0; i < timezones.length; i++) {
+                for (let j = i + 1; j < timezones.length; j++) {
+                    const A = timezones[i];
+                    const B = timezones[j];
+                    const minA = minutesInDayForTimezone(currentTime, A);
+                    const minB = minutesInDayForTimezone(currentTime, B);
+                    const actual = ((minB - minA) % 1440 + 1440) % 1440;
+                    const offA = getOffsetHoursForTimezone(currentTime, A);
+                    const offB = getOffsetHoursForTimezone(currentTime, B);
+                    const expected = (((offB - offA) * 60) % 1440 + 1440) % 1440;
+                    let delta = Math.abs(actual - expected);
+                    delta = Math.min(delta, 1440 - delta);
+                    if (delta > 1) {
+                        errs.push({ pair: `${A.name} \u2194 ${B.name}`, actualMinutes: actual, expectedMinutes: expected, offsetA: offA, offsetB: offB });
+                    }
+                }
+            }
+            if (errs.length) {
+                console.group('Timezone consistency check FAILED');
+                console.table(errs);
+                console.groupEnd();
+                showMessage(`${errs.length} timezone consistency issues detected. Open console for details.`, true);
+                return false;
+            }
+            return true;
+        }
+        window.runTZChecks = runConsistencyChecks;
+
 
         // Function to add a new time zone from the input field
         function addTimezoneFromInput() {
