@@ -560,7 +560,8 @@
                     id: 'user-location',
                     name: `Your Location (${userTimezone.replace(/_/g, ' ')})`,
                     offset: offsetHours,
-                    abbreviation: abbreviation
+                    abbreviation: abbreviation,
+                    iana: userTimezone
                 };
 
                 // Check if user's timezone is already in the list
