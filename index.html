@@ -1093,10 +1093,32 @@
             });
         }
 
+
+        // Build a display key (date + HH:MM) in the zone to filter duplicates
+        function getDisplayKeyForTimezone(date, timezone) {
+            const pad = (n) => String(n).padStart(2, '0');
+            if (timezone.iana) {
+                const p = getZonedParts(date, timezone.iana);
+                return `${p.y}-${pad(p.m)}-${pad(p.d)} ${pad(p.h)}:${pad(p.min)}`;
+            } else {
+                const shifted = new Date(date.getTime() + timezone.offset * 3600000);
+                const y = shifted.getUTCFullYear();
+                const m = shifted.getUTCMonth() + 1;
+                const d = shifted.getUTCDate();
+                const h = shifted.getUTCHours();
+                const min = shifted.getUTCMinutes();
+                return `${y}-${pad(m)}-${pad(d)} ${pad(h)}:${pad(min)}`;
+            }
+        }
+
         // Function to render all time zone cards
         function renderTimezones() {
             timezoneContainer.innerHTML = '';
+            const seenKeys = new Set();
             timezones.forEach((tz, index) => {
+                const key = getDisplayKeyForTimezone(currentTime, tz);
+                if (seenKeys.has(key)) return; // Filter duplicate times
+                seenKeys.add(key);
                 const card = createTimezoneCard(tz, index);
                 timezoneContainer.appendChild(card);
             });
@@ -1310,6 +1332,8 @@
                 console.table(errs);
                 console.groupEnd();
                 showMessage(`${errs.length} timezone consistency issues detected. Open console for details.`, true);
+
+
                 return false;
             }
             return true;
@@ -1332,6 +1356,8 @@
 
                 // Check multiple matching criteria:
                 // 1. Key contains input or input contains key
+
+
                 // 2. Timezone name contains input or input contains key parts
                 // 3. Abbreviation matches
                 if (keyLower.includes(inputName) ||
@@ -1380,6 +1406,8 @@
             for (const key in knownTimezones) {
                 const name = knownTimezones[key].name;
                 if (seen.has(name)) continue; // Avoid duplicate visible names
+
+
                 seen.add(name);
                 const option = document.createElement('option');
                 option.value = name;
@@ -1394,18 +1422,48 @@
         const cancelMapBtn = document.getElementById('cancelMapBtn');
         const closeMapBtn = document.getElementById('closeMapBtn');
 
+
+        // Ensure the map container has a concrete height based on modal layout
+        function sizeMapToModal() {
+            const content = mapModal.querySelector('.modal-content');
+            const mapEl = document.getElementById('map');
+            if (!content || !mapEl) return;
+            const header = content.querySelector('.modal-header');
+            const actions = content.querySelector('.modal-actions');
+            const headerH = header ? header.offsetHeight : 56;
+            const actionsH = actions ? actions.offsetHeight : 72;
+            const maxH = Math.min(window.innerHeight * 0.9, 800);
+            const mapH = Math.max(260, Math.floor(maxH - headerH - actionsH));
+            mapEl.style.height = mapH + 'px';
+        }
+
         function openMapModal() {
-            mapModal.classList.add('active');
-            if (!mapInitialized) {
-                initMap();
-                mapInitialized = true;
+            try {
+                mapModal.classList.add('active');
+                // Ensure container has a concrete height
+                sizeMapToModal();
+                window.addEventListener('resize', sizeMapToModal);
+                // Create map after modal is visible to avoid 0-size issues
+                if (!mapInitialized) {
+                    initMap();
+                    mapInitialized = true;
+                }
+                // Invalidate size a few times to be safe
+
+
+                const invalidate = () => { try { map && map.invalidateSize(); } catch (_) {} };
+                requestAnimationFrame(() => { sizeMapToModal(); invalidate(); });
+                setTimeout(() => { sizeMapToModal(); invalidate(); }, 60);
+                setTimeout(() => { sizeMapToModal(); invalidate(); }, 200);
+            } catch (e) {
+                console.error('openMapModal error', e);
+                showMessage('Could not open map. See console for details.', true);
             }
-            // Make sure map sizes correctly after modal opens
-            setTimeout(() => map.invalidateSize(), 50);
         }
 
         function closeMapModal() {
             mapModal.classList.remove('active');
+            window.removeEventListener('resize', sizeMapToModal);
         }
 
         function initMap() {
@@ -1476,6 +1534,7 @@
                 const tzPart = parts.find(p => p.type === 'timeZoneName');
                 const val = tzPart ? tzPart.value : '';
                 // Return alphabetic abbreviations like PST/CEST if present, else derived GMT offset
+
                 const m = val.match(/([A-Z]{2,5})/);
                 if (m) return m[1];
                 const m2 = val.match(/GMT([+-]\d{1,2})(?::(\d{2}))?/);
@@ -1500,6 +1559,8 @@
                     timeZoneName: 'shortOffset',
                     hour: '2-digit'
                 }).formatToParts(date);
+
+
                 const tz = parts.find(p => p.type === 'timeZoneName');
                 const m = tz && tz.value.match(/GMT([+-]\d{1,2})(?::(\d{2}))?/);
                 if (m) {
@@ -1521,7 +1582,9 @@
             const parts = new Intl.DateTimeFormat('en-CA', {
                 timeZone: iana,
                 year: 'numeric', month: '2-digit', day: '2-digit',
-                hour: '2-digit', minute: '2-digit', second: '2-digit'
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+                hour12: false,            // ensure 24h format
+                hourCycle: 'h23'          // explicitly request 00-23 hours
             }).formatToParts(date);
             const byType = Object.fromEntries(parts.map(p => [p.type, p.value]));
             return {
@@ -1568,7 +1631,7 @@
             const offset = getOffsetHoursForTimeZone(iana);
             const abbr = getAbbreviationForTimeZone(iana);
             const id = iana.toLowerCase().replace(/\//g, '-');
-            const name = `Selected Location (${ianaToCity(iana)})`;
+            const name = ianaToCity(iana);
             const newTz = { id, name, offset, abbreviation: abbr, iana: iana };
 
             const isDuplicate = timezones.some(tz => Math.abs(tz.offset - newTz.offset) < 0.1);
