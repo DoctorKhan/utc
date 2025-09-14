@@ -544,6 +544,12 @@
                 </svg>
                 <span id="currentLocalTime" class="text-sm text-gray-600 font-medium"></span>
             </div>
+                <div class="mt-3">
+                    <button id="toggleCurrencyBtn" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow">
+                        💱 Show Currency
+                    </button>
+                </div>
+
         </div>
 
         <!-- Add Time Zone Input with Dropdown -->
@@ -723,12 +729,170 @@
             'utc': { id: 'utc', name: 'Coordinated Universal Time', offset: 0, abbreviation: 'UTC' }
         };
 
+        // --- Currency converter data and helpers ---
+        // Whether to show currency UI; persisted in localStorage by the toggle button
+        let showCurrency = false;
+        // The shared base amount in USD used to reflect conversions across cards
+        let currentCurrencyAmountUSD = null;
+
+        // Approximate exchange rates: 1 USD = rate of currency
+        const exchangeRatesUSD = {
+            USD: 1,
+            EUR: 0.92,
+            GBP: 0.78,
+            CHF: 0.88,
+            CAD: 1.36,
+            AUD: 1.52,
+            NZD: 1.67,
+            JPY: 147,
+            CNY: 7.25,
+            HKD: 7.82,
+            TWD: 32,
+            KRW: 1330,
+            INR: 83,
+            PKR: 279,
+            LKR: 300,
+            NPR: 133,
+            BDT: 110,
+            MMK: 2100,
+            THB: 36.5,
+            IDR: 15300,
+            MYR: 4.7,
+            SGD: 1.35,
+            PHP: 56,
+            MXN: 18,
+            BRL: 5.1,
+            ARS: 900,
+            COP: 3950,
+            PEN: 3.7,
+            CLP: 930,
+            UYU: 40,
+            MAD: 9.8,
+            NGN: 1500,
+            GHS: 14.8,
+            EGP: 48,
+            KES: 128,
+            ETB: 57,
+            ZAR: 18.3,
+            TRY: 33,
+            RUB: 95,
+            UAH: 39,
+            QAR: 3.64,
+            SAR: 3.75,
+            AED: 3.67,
+            ILS: 3.75,
+            JOD: 0.71,
+            CHF: 0.88,
+            CZK: 23,
+            PLN: 4.05,
+            SEK: 10.9,
+            NOK: 10.6,
+            ISK: 137
+        };
+
+        const currencySymbols = {
+            USD: '$', EUR: '€', GBP: '£', JPY: '¥', CNY: '¥', HKD: 'HK$', TWD: 'NT$', KRW: '₩', INR: '₹',
+            PKR: '₨', LKR: 'Rs', NPR: '₨', BDT: '৳', MMK: 'K', THB: '฿', IDR: 'Rp', MYR: 'RM', SGD: 'S$', PHP: '₱',
+            AUD: 'A$', NZD: 'NZ$', CAD: 'C$', CHF: 'CHF', MXN: 'Mex$', BRL: 'R$', ARS: '$', COP: '$', PEN: 'S/', CLP: '$',
+            UYU: '$U', MAD: 'DH', NGN: '₦', GHS: '₵', EGP: 'E£', KES: 'KSh', ETB: 'Br', ZAR: 'R', TRY: '₺', RUB: '₽', UAH: '₴',
+            QAR: 'QR', SAR: 'SR', AED: 'AED', ILS: '₪', JOD: 'JD'
+        };
+
+        // Map specific city IDs to currency codes for reliable results
+        const cityCurrencyOverrides = {
+            // US & Canada
+            'new-york': 'USD', 'los-angeles': 'USD', 'san-francisco': 'USD', 'san-diego': 'USD', 'san-jose': 'USD', 'seattle': 'USD', 'portland': 'USD', 'phoenix': 'USD', 'denver': 'USD', 'dallas': 'USD', 'houston': 'USD', 'austin': 'USD', 'chicago': 'USD',
+            'toronto': 'CAD', 'vancouver': 'CAD', 'winnipeg': 'CAD', 'mexico-city': 'MXN',
+            // South America
+            'sao-paulo': 'BRL', 'buenos-aires': 'ARS', 'bogota': 'COP', 'lima': 'PEN', 'santiago': 'CLP', 'montevideo': 'UYU',
+            // Europe
+            'london': 'GBP', 'dublin': 'EUR', 'lisbon': 'EUR', 'reykjavik': 'ISK', 'madrid': 'EUR', 'barcelona': 'EUR', 'paris': 'EUR', 'berlin': 'EUR', 'amsterdam': 'EUR', 'zurich': 'CHF', 'vienna': 'EUR', 'rome': 'EUR', 'prague': 'CZK', 'warsaw': 'PLN', 'stockholm': 'SEK', 'oslo': 'NOK', 'helsinki': 'EUR', 'athens': 'EUR', 'istanbul': 'TRY', 'kyiv': 'UAH', 'moscow': 'RUB',
+            // Africa & Middle East
+            'casablanca': 'MAD', 'lagos': 'NGN', 'accra': 'GHS', 'cairo': 'EGP', 'nairobi': 'KES', 'addis-ababa': 'ETB', 'johannesburg': 'ZAR', 'dubai': 'AED', 'doha': 'QAR', 'riyadh': 'SAR', 'jerusalem': 'ILS', 'amman': 'JOD', 'tehran': 'IRR',
+            // Asia
+            'karachi': 'PKR', 'mumbai': 'INR', 'colombo': 'LKR', 'kathmandu': 'NPR', 'dhaka': 'BDT', 'yangon': 'MMK', 'bangkok': 'THB', 'jakarta': 'IDR', 'bali': 'IDR', 'kuala-lumpur': 'MYR', 'singapore': 'SGD', 'manila': 'PHP', 'hong-kong': 'HKD', 'taipei': 'TWD', 'beijing': 'CNY', 'shanghai': 'CNY', 'seoul': 'KRW', 'tokyo': 'JPY',
+            // Oceania
+            'perth': 'AUD', 'adelaide': 'AUD', 'brisbane': 'AUD', 'sydney': 'AUD', 'melbourne': 'AUD', 'auckland': 'NZD', 'wellington': 'NZD'
+        };
+
+        function getCurrencySymbol(code) {
+            return currencySymbols[code] || '';
+        }
+
+        function resolveCurrencyCode(tz) {
+            if (!tz) return 'USD';
+            if (tz.currencyCode) return tz.currencyCode;
+            if (cityCurrencyOverrides[tz.id]) return cityCurrencyOverrides[tz.id];
+            const n = tz.name || '';
+            if (n.includes('USA')) return 'USD';
+            if (n.includes('Canada')) return 'CAD';
+            if (n.includes('Australia')) return 'AUD';
+            if (n.includes('New Zealand')) return 'NZD';
+            if (n.includes('UK')) return 'GBP';
+            if (n.includes('Japan')) return 'JPY';
+            if (n.includes('China')) return 'CNY';
+            if (n.includes('India')) return 'INR';
+            return 'USD';
+        }
+
+        function parseNumericInput(s) {
+            const v = parseFloat(String(s).replace(/[^0-9.\-]/g, ''));
+            return isNaN(v) ? NaN : v;
+        }
+
+        function formatCurrencyAmount(amount, code) {
+            try {
+                return new Intl.NumberFormat(undefined, { style: 'currency', currency: code, maximumFractionDigits: 2 }).format(amount);
+            } catch (e) {
+                return `${amount.toFixed(2)} ${code}`;
+            }
+        }
+
+        function onCurrencyInput(event) {
+            const input = event.target;
+            const card = input.closest('.timezone-card');
+            if (!card) return;
+            const tz = timezones[card.dataset.index];
+            const code = resolveCurrencyCode(tz);
+            const val = parseNumericInput(input.value);
+            if (isNaN(val) || !exchangeRatesUSD[code]) {
+                currentCurrencyAmountUSD = null;
+                updateCurrencyDisplays();
+                return;
+            }
+            currentCurrencyAmountUSD = val / exchangeRatesUSD[code];
+            updateCurrencyDisplays();
+        }
+
+        function updateCurrencyDisplays() {
+            document.querySelectorAll('.timezone-card').forEach(card => {
+                const tz = timezones[card.dataset.index];
+                const code = resolveCurrencyCode(tz);
+                const input = card.querySelector('input.currency-input');
+                const codeEl = card.querySelector('.currency-code');
+                const symEl = card.querySelector('.currency-symbol');
+                if (codeEl) codeEl.textContent = code;
+                if (symEl) symEl.textContent = getCurrencySymbol(code);
+                if (!input) return;
+                if (currentCurrencyAmountUSD != null && exchangeRatesUSD[code]) {
+                    const amount = currentCurrencyAmountUSD * exchangeRatesUSD[code];
+                    input.value = formatCurrencyAmount(amount, code);
+                } else {
+                    input.value = '';
+                }
+            });
+        }
+
+
+
         // Get elements from the DOM
         const timezoneContainer = document.getElementById('timezoneContainer');
         const timezoneInput = document.getElementById('timezoneInput');
         const addTimezoneBtn = document.getElementById('addTimezoneBtn');
         const messageContainer = document.getElementById('messageContainer');
         const timezoneOptions = document.getElementById('timezoneOptions');
+        const toggleCurrencyBtn = document.getElementById('toggleCurrencyBtn');
+
 
         // Initial time object, can be manipulated by the sliders
         let currentTime = new Date();
@@ -887,6 +1051,19 @@
             // Mobile-first responsive layout
             const isMobile = window.innerWidth < 768;
 
+	            const currencyCode = resolveCurrencyCode(timezone);
+	            const currencySection = showCurrency ? `
+	                <div class="currency-section mt-2">
+	                    <div class="flex items-center gap-2 mb-2">
+	                        <span class="text-xs text-gray-500">Currency:</span>
+	                        <span class="currency-symbol">${getCurrencySymbol(currencyCode)}</span>
+	                        <span class="currency-code font-medium">${currencyCode}</span>
+	                    </div>
+	                    <input type="text" class="currency-input w-full p-2 rounded-lg border border-orange-200/60 bg-white/70 focus:bg-white focus:outline-none shadow-sm" inputmode="decimal" placeholder="Enter amount" />
+	                </div>
+	            ` : '';
+
+
             if (isMobile) {
                 card.innerHTML = `
                     <div class="card-header">
@@ -917,6 +1094,7 @@
                                 <span>🌙</span>
                             </div>
                         </div>
+                        ${currencySection}
                     </div>
                 `;
             } else {
@@ -944,6 +1122,7 @@
                             <span>🌙</span>
                         </div>
                     </div>
+                    ${currencySection}
                     <button class="close-button" onclick="removeTimezone(${index})">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1073,9 +1252,16 @@
                 slider.addEventListener('input', updateTimeFromSlider);
             });
 
+            // Currency input listeners
+            document.querySelectorAll('.timezone-card input.currency-input').forEach(inp => {
+                inp.addEventListener('input', onCurrencyInput);
+            });
+
             // Add drag and drop event listeners
             addDragAndDropListeners();
 
+            // Initialize currency display values (if any)
+            updateCurrencyDisplays();
 
             // Quick consistency check after rendering
             runConsistencyChecks();
@@ -1415,6 +1601,8 @@
                 selectedLatLng = e.latlng;
                 if (!mapMarker) {
                     mapMarker = L.marker(selectedLatLng).addTo(map);
+
+
                 } else {
                     mapMarker.setLatLng(selectedLatLng);
                 }
@@ -1602,10 +1790,32 @@
             // Add touch support
             addTouchSupport();
 
+
+            // Restore currency toggle state
+            try {
+                const stored = localStorage.getItem('showCurrency');
+                if (stored !== null) showCurrency = stored === '1';
+                if (toggleCurrencyBtn) {
+                    toggleCurrencyBtn.innerHTML = showCurrency ? '💱 Hide Currency' : '💱 Show Currency';
+                }
+            } catch {}
+
             // Parse URL parameters first
             const urlParams = parseURLParameters();
 
             // If URL has timezones, use those instead of defaults
+
+        // Toggle currency UI
+        if (toggleCurrencyBtn) {
+            toggleCurrencyBtn.addEventListener('click', () => {
+                showCurrency = !showCurrency;
+                localStorage.setItem('showCurrency', showCurrency ? '1' : '0');
+                toggleCurrencyBtn.innerHTML = showCurrency ? '💱 Hide Currency' : '💱 Show Currency';
+                renderTimezones();
+                if (showCurrency) updateCurrencyDisplays();
+            });
+        }
+
             if (urlParams.timezones.length > 0) {
                 timezones.length = 0; // Clear default timezones
                 timezones.push(...urlParams.timezones);
