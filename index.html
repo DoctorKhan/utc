@@ -1240,8 +1240,9 @@
             timezoneContainer.innerHTML = '';
             const seenKeys = new Set();
             timezones.forEach((tz, index) => {
-                const key = getDisplayKeyForTimezone(currentTime, tz);
-                if (seenKeys.has(key)) return; // Filter duplicate times
+                const baseKey = getDisplayKeyForTimezone(currentTime, tz);
+                const key = showCurrency ? `${baseKey}|${resolveCurrencyCode(tz)}` : baseKey;
+                if (seenKeys.has(key)) return; // Filter duplicate times (currency-aware)
                 seenKeys.add(key);
                 const card = createTimezoneCard(tz, index);
                 timezoneContainer.appendChild(card);
@@ -1502,8 +1503,13 @@
             }
 
             if (newTz) {
-                // Check if a timezone with the same offset is already in the list
-                const isDuplicate = timezones.some(tz => Math.abs(tz.offset - newTz.offset) < 0.1);
+                // Allow same time if currency differs: treat duplicates as same time AND same currency
+                const newCode = resolveCurrencyCode(newTz);
+                const isDuplicate = timezones.some(tz => {
+                    const sameTime = Math.abs(getOffsetHoursForTimezone(new Date(), tz) - newTz.offset) < 0.1;
+                    const sameCurrency = resolveCurrencyCode(tz) === newCode;
+                    return sameTime && sameCurrency;
+                });
                 if (!isDuplicate) {
                     timezones.push(newTz);
                     renderTimezones();
@@ -1511,7 +1517,7 @@
                     showMessage(`Added ${newTz.name}!`, false);
                     updateURL(); // Update URL when timezone is added
                 } else {
-                    showMessage(`${newTz.name} is already covered by another timezone in your list.`, true);
+                    showMessage(`${newTz.name} is already covered by another timezone in your list with the same currency.`, true);
                 }
             } else {
                 showMessage('Time zone not recognized. Please try a different city.', true);
@@ -1753,9 +1759,15 @@
             const name = ianaToCity(iana);
             const newTz = { id, name, offset, abbreviation: abbr, iana: iana };
 
-            const isDuplicate = timezones.some(tz => Math.abs(getOffsetHoursForTimezone(new Date(), tz) - offset) < 0.1);
+            // Allow same time if currency differs: only block if both time and currency match
+            const newCode = resolveCurrencyCode(newTz);
+            const isDuplicate = timezones.some(tz => {
+                const sameTime = Math.abs(getOffsetHoursForTimezone(new Date(), tz) - offset) < 0.1;
+                const sameCurrency = resolveCurrencyCode(tz) === newCode;
+                return sameTime && sameCurrency;
+            });
             if (isDuplicate) {
-                showMessage(`${name} is already covered by another timezone in your list.`, true);
+                showMessage(`${name} is already covered by another timezone in your list with the same currency.`, true);
                 return;
             }
             timezones.push(newTz);
