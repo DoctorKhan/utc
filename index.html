@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Universal Time Converter</title>
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio,line-clamp"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -546,7 +546,7 @@
             </div>
                 <div class="mt-3">
                     <button id="toggleCurrencyBtn" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow">
-                        💱 Show Currency
+                        💱 Hide Currency
                     </button>
                 </div>
 
@@ -576,6 +576,22 @@
             </div>
         </div>
         <div id="messageContainer" class="text-center mb-4 transition-all duration-300 opacity-0 rounded-xl"></div>
+
+        <!-- Global Currency Section -->
+        <div id="globalCurrencySection" class="mb-6 md:mb-8 p-4 md:p-5 rounded-2xl md:rounded-3xl shadow-lg border border-blue-200/50 bg-white/70 backdrop-blur-sm">
+            <div class="flex items-center justify-between flex-wrap gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-blue-600">💱</span>
+                    <h3 class="text-base md:text-lg font-semibold text-gray-800">Currency</h3>
+                    <span class="text-xs text-gray-500">Base: USD</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input id="globalCurrencyInput" type="number" inputmode="decimal" step="any" min="0" placeholder="Enter amount in USD" class="w-44 md:w-56 p-2 rounded-lg border border-blue-200/60 bg-white/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-sm" />
+                    <button id="clearCurrencyBtn" class="px-3 py-2 rounded-lg text-sm font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200">Clear</button>
+                </div>
+            </div>
+            <p class="mt-2 text-xs text-gray-500">Tip: Type here to set an amount in USD and see instant conversions in all cards. Rates are approximate.</p>
+        </div>
 
         <!-- Time Zone Cards Container -->
         <div id="timezoneContainer" class="space-y-3 md:space-y-4">
@@ -769,7 +785,8 @@
 
         // --- Currency converter data and helpers ---
         // Whether to show currency UI; persisted in localStorage by the toggle button
-        let showCurrency = false;
+        // Default ON for new users; localStorage override (if present) applies at init
+        let showCurrency = true;
         // The shared base amount in USD used to reflect conversions across cards
         let currentCurrencyAmountUSD = null;
 
@@ -875,6 +892,25 @@
             'perth': 'AUD', 'adelaide': 'AUD', 'brisbane': 'AUD', 'sydney': 'AUD', 'melbourne': 'AUD', 'auckland': 'NZD', 'wellington': 'NZD', 'suva': 'FJD'
         };
 
+
+        // Popular IANA zones to greatly expand search/datalist coverage (global)
+        const popularIanaZones = [
+            // Africa
+            'Africa/Tunis','Africa/Algiers','Africa/Casablanca','Africa/Abidjan','Africa/Dakar','Africa/Lagos','Africa/Cairo','Africa/Nairobi','Africa/Addis_Ababa','Africa/Johannesburg','Africa/Kampala','Africa/Dar_es_Salaam',
+            // Europe
+            'Europe/London','Europe/Dublin','Europe/Lisbon','Europe/Madrid','Europe/Paris','Europe/Berlin','Europe/Amsterdam','Europe/Zurich','Europe/Vienna','Europe/Rome','Europe/Prague','Europe/Warsaw','Europe/Stockholm','Europe/Oslo','Europe/Helsinki','Europe/Athens','Europe/Istanbul','Europe/Kyiv','Europe/Moscow','Europe/Brussels','Europe/Copenhagen','Europe/Bucharest','Europe/Sofia','Europe/Belgrade','Europe/Budapest',
+            // Middle East
+            'Asia/Dubai','Asia/Doha','Asia/Riyadh','Asia/Jerusalem','Asia/Amman','Asia/Tehran',
+            // South & SE Asia
+            'Asia/Karachi','Asia/Kolkata','Asia/Colombo','Asia/Kathmandu','Asia/Dhaka','Asia/Yangon','Asia/Bangkok','Asia/Jakarta','Asia/Makassar','Asia/Kuala_Lumpur','Asia/Singapore','Asia/Manila','Asia/Hong_Kong','Asia/Taipei','Asia/Shanghai','Asia/Seoul','Asia/Tokyo','Asia/Ho_Chi_Minh','Asia/Phnom_Penh','Asia/Vientiane','Asia/Ulaanbaatar',
+            // Oceania
+            'Australia/Sydney','Australia/Melbourne','Australia/Brisbane','Australia/Adelaide','Australia/Perth','Pacific/Auckland','Pacific/Wellington','Pacific/Fiji',
+            // North America
+            'America/Los_Angeles','America/Phoenix','America/Denver','America/Chicago','America/New_York','America/Toronto','America/Vancouver','America/Mexico_City',
+            // Central & South America
+            'America/Bogota','America/Lima','America/Santiago','America/Argentina/Buenos_Aires','America/Montevideo','America/Sao_Paulo','America/La_Paz','America/Caracas','America/Guatemala','America/Panama','America/Kingston','America/Havana'
+        ];
+
         function getCurrencySymbol(code) {
             return currencySymbols[code] || '';
         }
@@ -892,23 +928,6 @@
             if (n.includes('Japan')) return 'JPY';
             if (n.includes('China')) return 'CNY';
 
-        // Popular IANA zones to greatly expand search/datalist coverage
-        const popularIanaZones = [
-            // Africa
-            'Africa/Tunis','Africa/Algiers','Africa/Casablanca','Africa/Abidjan','Africa/Dakar','Africa/Lagos','Africa/Cairo','Africa/Nairobi','Africa/Addis_Ababa','Africa/Johannesburg','Africa/Kampala','Africa/Dar_es_Salaam',
-            // Europe
-            'Europe/London','Europe/Dublin','Europe/Lisbon','Europe/Madrid','Europe/Paris','Europe/Berlin','Europe/Amsterdam','Europe/Zurich','Europe/Vienna','Europe/Rome','Europe/Prague','Europe/Warsaw','Europe/Stockholm','Europe/Oslo','Europe/Helsinki','Europe/Athens','Europe/Istanbul','Europe/Kyiv','Europe/Moscow','Europe/Brussels','Europe/Copenhagen','Europe/Bucharest','Europe/Sofia','Europe/Belgrade','Europe/Budapest',
-            // Middle East
-            'Asia/Dubai','Asia/Doha','Asia/Riyadh','Asia/Jerusalem','Asia/Amman','Asia/Tehran',
-            // South & SE Asia
-            'Asia/Karachi','Asia/Kolkata','Asia/Colombo','Asia/Kathmandu','Asia/Dhaka','Asia/Yangon','Asia/Bangkok','Asia/Jakarta','Asia/Makassar','Asia/Kuala_Lumpur','Asia/Singapore','Asia/Manila','Asia/Hong_Kong','Asia/Taipei','Asia/Shanghai','Asia/Seoul','Asia/Tokyo','Asia/Ho_Chi_Minh','Asia/Phnom_Penh','Asia/Vientiane','Asia/Ulaanbaatar',
-            // Oceania
-            'Australia/Sydney','Australia/Melbourne','Australia/Brisbane','Australia/Adelaide','Australia/Perth','Pacific/Auckland','Pacific/Wellington','Pacific/Fiji',
-            // North America
-            'America/Los_Angeles','America/Phoenix','America/Denver','America/Chicago','America/New_York','America/Toronto','America/Vancouver','America/Mexico_City',
-            // Central & South America
-            'America/Bogota','America/Lima','America/Santiago','America/Argentina/Buenos_Aires','America/Montevideo','America/Sao_Paulo','America/La_Paz','America/Caracas','America/Guatemala','America/Panama','America/Kingston','America/Havana'
-        ];
 
             if (n.includes('India')) return 'INR';
             return 'USD';
@@ -930,6 +949,8 @@
         function onCurrencyInput(event) {
             const input = event.target;
             const card = input.closest('.timezone-card');
+
+
             if (!card) return;
             const tz = timezones[card.dataset.index];
             const code = resolveCurrencyCode(tz);
@@ -940,10 +961,14 @@
                 return;
             }
             currentCurrencyAmountUSD = val / exchangeRatesUSD[code];
+            // Reflect to global USD input
+            const g = document.getElementById('globalCurrencyInput');
+            if (g) g.value = currentCurrencyAmountUSD.toFixed(2);
             updateCurrencyDisplays();
         }
 
         function updateCurrencyDisplays() {
+            const activeEl = document.activeElement;
             document.querySelectorAll('.timezone-card').forEach(card => {
                 const tz = timezones[card.dataset.index];
                 const code = resolveCurrencyCode(tz);
@@ -953,13 +978,23 @@
                 if (codeEl) codeEl.textContent = code;
                 if (symEl) symEl.textContent = getCurrencySymbol(code);
                 if (!input) return;
+                // Don't override the value of the input that is currently being edited
+                if (input === activeEl) return;
                 if (currentCurrencyAmountUSD != null && exchangeRatesUSD[code]) {
                     const amount = currentCurrencyAmountUSD * exchangeRatesUSD[code];
-                    input.value = formatCurrencyAmount(amount, code);
+                    // For number inputs, keep it numeric; otherwise, format nicely
+                    if (input.type === 'number') {
+                        input.value = Number.isFinite(amount) ? amount.toFixed(2) : '';
+                    } else {
+                        input.value = formatCurrencyAmount(amount, code);
+                    }
                 } else {
                     input.value = '';
                 }
             });
+            // Reflect the USD base amount into the global input if present, unless focused
+            const g = document.getElementById('globalCurrencyInput');
+            if (g && g !== activeEl) g.value = currentCurrencyAmountUSD != null ? currentCurrencyAmountUSD.toFixed(2) : '';
         }
 
 
@@ -971,6 +1006,26 @@
         const messageContainer = document.getElementById('messageContainer');
         const timezoneOptions = document.getElementById('timezoneOptions');
         const toggleCurrencyBtn = document.getElementById('toggleCurrencyBtn');
+
+        const globalCurrencySection = document.getElementById('globalCurrencySection');
+        const globalCurrencyInput = document.getElementById('globalCurrencyInput');
+        const clearCurrencyBtn = document.getElementById('clearCurrencyBtn');
+
+        // Global currency input handlers
+        if (globalCurrencyInput) {
+            globalCurrencyInput.addEventListener('input', () => {
+                const v = parseNumericInput(globalCurrencyInput.value);
+                currentCurrencyAmountUSD = isNaN(v) ? null : v;
+                updateCurrencyDisplays();
+            });
+        }
+        if (clearCurrencyBtn) {
+            clearCurrencyBtn.addEventListener('click', () => {
+                currentCurrencyAmountUSD = null;
+                if (globalCurrencyInput) globalCurrencyInput.value = '';
+                updateCurrencyDisplays();
+            });
+        }
 
 
         // Initial time object, can be manipulated by the sliders
@@ -1138,7 +1193,7 @@
 	                        <span class="currency-symbol">${getCurrencySymbol(currencyCode)}</span>
 	                        <span class="currency-code font-medium">${currencyCode}</span>
 	                    </div>
-	                    <input type="text" class="currency-input w-full p-2 rounded-lg border border-orange-200/60 bg-white/70 focus:bg-white focus:outline-none shadow-sm" inputmode="decimal" placeholder="Enter amount" />
+	                    <input type="number" class="currency-input w-full p-2 rounded-lg border border-orange-200/60 bg-white/70 focus:bg-white focus:outline-none shadow-sm" inputmode="decimal" step="any" min="0" placeholder="Enter amount" />
 	                </div>
 	            ` : '';
 
@@ -1922,6 +1977,9 @@
                 if (toggleCurrencyBtn) {
                     toggleCurrencyBtn.innerHTML = showCurrency ? '💱 Hide Currency' : '💱 Show Currency';
                 }
+                if (globalCurrencySection) {
+                    globalCurrencySection.style.display = showCurrency ? '' : 'none';
+                }
             } catch {}
 
             // Parse URL parameters first
@@ -1935,6 +1993,7 @@
                 showCurrency = !showCurrency;
                 localStorage.setItem('showCurrency', showCurrency ? '1' : '0');
                 toggleCurrencyBtn.innerHTML = showCurrency ? '💱 Hide Currency' : '💱 Show Currency';
+                if (globalCurrencySection) globalCurrencySection.style.display = showCurrency ? '' : 'none';
                 renderTimezones();
                 if (showCurrency) updateCurrencyDisplays();
             });
