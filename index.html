@@ -1626,13 +1626,20 @@
 
                 // 2. Timezone name contains input or input contains key parts
                 // 3. Abbreviation matches
-                if (keyLower.includes(inputName) ||
-                    inputName.includes(keyLower) ||
-                    nameLower.includes(inputName) ||
-                    inputName.includes(keyLower.split(' ')[0]) || // Match first word of key
-                    abbreviationLower.includes(inputName)) {
+                if (keyLower === inputName || nameLower === inputName) {
                     newTz = timezone;
-                    break;
+                    break; // Exact match found, stop searching
+                }
+
+                // Check for partial matches if no exact match is found yet
+                if (!newTz) {
+                    if (keyLower.includes(inputName) ||
+                        inputName.includes(keyLower) ||
+                        nameLower.includes(inputName) ||
+                        abbreviationLower.includes(inputName)) {
+                        newTz = timezone;
+                        // Continue searching for a potentially better match
+                    }
                 }
             }
 
